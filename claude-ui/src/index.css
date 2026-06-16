@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* macOS desktop wallpaper — shows through the frosted-glass menu bar */
+body {
+  background:
+    radial-gradient(ellipse 70% 55% at 22% 45%, rgba(80,210,200,0.75) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 50% at 76% 24%, rgba(50,180,170,0.62) 0%, transparent 58%),
+    linear-gradient(155deg, #0a2e2c 0%, #071e1d 40%, #040f0e 70%, #020808 100%);
+}
+
+.font-lora { font-family: 'Lora', Georgia, serif; }
+
+/* Chrome-style tab — proper curved corner via CSS mask */
+.chrome-tab-v2 {
+  position: relative;
+  height: 34px;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 12px 0 14px;
+  min-width: 210px;
+  max-width: 250px;
+  background: #393a3f;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  color: #e8eaed;
+  font-size: 12.5px;
+  cursor: default;
+  flex-shrink: 0;
+}
+.chrome-tab-v2::before,
+.chrome-tab-v2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  width: 10px;
+  height: 10px;
+  background: #393a3f;
+}
+.chrome-tab-v2::before {
+  left: -10px;
+  -webkit-mask: radial-gradient(circle at top left,  transparent 10px, #000 10px);
+          mask: radial-gradient(circle at top left,  transparent 10px, #000 10px);
+}
+.chrome-tab-v2::after {
+  right: -10px;
+  -webkit-mask: radial-gradient(circle at top right, transparent 10px, #000 10px);
+          mask: radial-gradient(circle at top right, transparent 10px, #000 10px);
+}
+
+/* Recents scroll */
+.recents-scroll {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #333 transparent;
+}
+.recents-scroll::-webkit-scrollbar { width: 3px; }
+.recents-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
