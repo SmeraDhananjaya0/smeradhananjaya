@@ -997,7 +997,7 @@ function ClaudeChatViewWhoAmI() {
             <p className="mb-1">
               <a href="https://x.com/Northeastern" target="_blank" rel="noopener noreferrer" className="text-[#7aa2e3] hover:underline">@Northeastern</a>
             </p>
-            <p className="mb-4">CS, STEM education advocate, building w/ intention</p>
+            <p className="mb-4">CS, <a href="https://www.gnxl.org/" target="_blank" rel="noopener noreferrer" className="text-[#7aa2e3] hover:underline">STEM education advocate</a>, building w/ intention</p>
 
             <p className="font-semibold mb-2">Quick Links</p>
             <ul className="list-disc pl-6 space-y-1">
