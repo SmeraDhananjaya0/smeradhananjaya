@@ -621,25 +621,37 @@ function PaperIcon({ size = 16 }: { size?: number }) {
 function ContributionGraph() {
   const WEEKS = 53
   const DAYS = 7
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  const months = ['Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun']
   const levelColors = ['#161b22', '#0e4429', '#006d32', '#26a641', '#39d353']
 
-  // Sparse contribution data matching image 1 — [week, day, level]
+  // Sparse contribution data matching reference — [week, day, level]
+  // day: 0=Sun 1=Mon 2=Tue 3=Wed 4=Thu 5=Fri 6=Sat
   const greens: [number, number, number][] = [
-    // Jan–Feb cluster
-    [0, 3, 2],
-    [1, 4, 2],
-    [2, 3, 2], [2, 4, 2], [2, 5, 4], [2, 6, 2],
-    [3, 3, 2], [3, 4, 2],
-    [4, 4, 2],
-    [5, 4, 2], [5, 6, 2],
-    [6, 1, 2],
-    [7, 1, 2], [7, 2, 2],
-    [8, 1, 2], [8, 2, 2],
-    // Jun cluster
-    [22, 4, 2], [22, 6, 2],
-    [23, 1, 2],
-    [24, 1, 2],
+    // Jun (start)
+    [1, 3, 3],
+    // Aug cluster
+    [8, 5, 4], [8, 6, 2],
+    [9, 0, 2], [9, 2, 2], [9, 4, 2], [9, 5, 3], [9, 6, 2],
+    [10, 0, 2], [10, 2, 2], [10, 6, 2],
+    [11, 4, 3],
+    // Sep
+    [14, 4, 3],
+    // Oct
+    [18, 6, 2],
+    // Dec
+    [27, 5, 3], [27, 6, 2],
+    // Jan cluster
+    [30, 3, 2], [30, 4, 2], [30, 5, 4], [30, 6, 2],
+    [31, 4, 2],
+    // Feb cluster
+    [34, 1, 2], [34, 3, 2], [34, 4, 2],
+    [35, 2, 2], [35, 4, 2], [35, 6, 2],
+    [36, 1, 4], [36, 2, 2],
+    // May
+    [49, 5, 3],
+    // Jun (end)
+    [51, 1, 3], [51, 5, 2], [51, 6, 2],
+    [52, 1, 3], [52, 2, 3],
   ]
 
   const cells: number[][] = Array.from({ length: WEEKS }, () => Array(DAYS).fill(0))
