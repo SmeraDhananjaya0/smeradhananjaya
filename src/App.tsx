@@ -95,7 +95,7 @@ function MacMenuBar() {
     <div style={{
       flexShrink: 0, height: 30, zIndex: 50, overflow: 'visible',
       display: 'flex', alignItems: 'center', padding: '0 12px 0 16px', color: '#fff',
-      background: 'rgba(0,0,0,0.82)',
+      background: 'rgba(0,0,0,0.28)',
       backdropFilter: 'blur(28px) saturate(1.6)',
       WebkitBackdropFilter: 'blur(28px) saturate(1.6)',
       borderBottom: '0.5px solid rgba(255,255,255,0.08)',
@@ -168,14 +168,15 @@ function MacMenuBar() {
 
 // ─── Chrome Tab Strip ────────────────────────────────────────────────────────
 
-function ChromeTabStrip() {
+function ChromeTabStrip({ onClose, onMinimize, onMaximize, onDragStart }: { onClose: () => void; onMinimize: () => void; onMaximize: () => void; onDragStart?: (e: React.MouseEvent) => void }) {
+  const dot = (bg: string): React.CSSProperties => ({ width:12, height:12, borderRadius:'50%', background:bg, display:'block', border:'none', padding:0, cursor:'pointer' })
   return (
-    <div style={{ background:'#1d1d1f', height:42, display:'flex', alignItems:'flex-end', padding:'0 8px', flexShrink:0, userSelect:'none' }}>
+    <div onMouseDown={onDragStart} style={{ background:'#1d1d1f', height:42, display:'flex', alignItems:'flex-end', padding:'0 8px', flexShrink:0, userSelect:'none', cursor: onDragStart ? 'grab' : undefined }}>
       {/* Traffic lights */}
       <div style={{ display:'flex', alignItems:'center', gap:8, padding:'0 16px 0 6px', height:42 }}>
-        <span style={{ width:12, height:12, borderRadius:'50%', background:'#ff5f57', display:'block' }}/>
-        <span style={{ width:12, height:12, borderRadius:'50%', background:'#febc2e', display:'block' }}/>
-        <span style={{ width:12, height:12, borderRadius:'50%', background:'#28c840', display:'block' }}/>
+        <button onClick={onClose} aria-label="Close" style={dot('#ff5f57')}/>
+        <button onClick={onMinimize} aria-label="Minimize" style={dot('#febc2e')}/>
+        <button onClick={onMaximize} aria-label="Maximize" style={dot('#28c840')}/>
       </div>
 
       {/* Single active tab */}
@@ -467,18 +468,18 @@ function ModelSelector() {
           {/* click-away overlay */}
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
 
-          {/* panel — compact, opens upward, right-aligned to the pill */}
-          <div className="absolute bottom-full right-0 mb-2.5 w-[360px] z-50 p-1.5 rounded-2xl bg-[#2b2a28] border border-[#3a3a38] shadow-[0_20px_50px_rgba(0,0,0,0.55)]">
+          {/* panel — compact, opens upward, right-aligned to the pill; size/height adapt so it never gets cut off */}
+          <div className="absolute bottom-full right-0 mb-2 w-[420px] max-w-[calc(100vw-24px)] max-h-[calc(100vh-110px)] overflow-y-auto z-50 p-1 rounded-xl bg-[#2b2a28] border border-[#3a3a38] shadow-[0_20px_50px_rgba(0,0,0,0.55)]">
             {/* Disabled / unavailable */}
-            <div className="px-3.5 py-2 rounded-[10px] cursor-default">
+            <div className="px-3 py-1.5 rounded-[10px] cursor-default">
               <div className="flex items-center gap-2 whitespace-nowrap">
-                <span className="text-[15px] font-[450] leading-[1.3] text-[#67675f]">Myth atp 20</span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#33332f] text-[12px] text-[#8a8a85] whitespace-nowrap">
-                  <Info size={12} />
-                  Currently unavailable until Sept 30t
+                <span className="text-[13.5px] font-[450] leading-[1.25] text-[#67675f]">Myth atp 20</span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#33332f] text-[11.5px] text-[#8a8a85] whitespace-nowrap">
+                  <Info size={11} />
+                  Currently unavailable until Sept 30th 2026
                 </span>
               </div>
-              <div className="text-[13px] leading-[1.3] text-[#67675f] mt-px">For your toughest challenges</div>
+              <div className="text-[12px] leading-[1.25] text-[#67675f] mt-px">For your toughest challenges</div>
             </div>
 
             {/* Selectable models */}
@@ -486,35 +487,35 @@ function ModelSelector() {
               <button
                 key={name}
                 onClick={() => { setSelected(name); setOpen(false) }}
-                className="flex items-center w-full text-left px-3.5 py-2 rounded-[10px] hover:bg-[#34332f] transition-colors"
+                className="flex items-center w-full text-left px-3 py-1.5 rounded-[10px] hover:bg-[#34332f] transition-colors"
               >
                 <div className="flex-1 min-w-0">
-                  <div className="text-[15px] font-[450] leading-[1.3] text-[#f2f2ef]">{name}</div>
-                  <div className="text-[13px] leading-[1.3] text-[#8a8a85] mt-px">{sub}</div>
+                  <div className="text-[13.5px] font-[450] leading-[1.25] text-[#f2f2ef]">{name}</div>
+                  <div className="text-[12px] leading-[1.25] text-[#8a8a85] mt-px">{sub}</div>
                 </div>
                 {selected === name && (
-                  <Check size={16} strokeWidth={2.5} className="text-[#4a9eff] flex-shrink-0 ml-2.5" />
+                  <Check size={15} strokeWidth={2.5} className="text-[#4a9eff] flex-shrink-0 ml-2.5" />
                 )}
               </button>
             ))}
 
-            <div className="h-px bg-[#3a3a38] my-1" />
+            <div className="h-px bg-[#3a3a38] my-0.5" />
 
             {/* Effort */}
-            <button className="flex items-center w-full px-3.5 py-2 rounded-[10px] hover:bg-[#34332f] transition-colors">
-              <span className="text-[15px] font-[450] text-[#f2f2ef]">Effort</span>
-              <span className="ml-auto flex items-center gap-1.5 text-[#8a8a85] text-[14px]">
+            <button className="flex items-center w-full px-3 py-1.5 rounded-[10px] hover:bg-[#34332f] transition-colors">
+              <span className="text-[13.5px] font-[450] text-[#f2f2ef]">Effort</span>
+              <span className="ml-auto flex items-center gap-1.5 text-[#8a8a85] text-[13px]">
                 High
-                <ChevronRight size={15} />
+                <ChevronRight size={14} />
               </span>
             </button>
 
-            <div className="h-px bg-[#3a3a38] my-1" />
+            <div className="h-px bg-[#3a3a38] my-0.5" />
 
             {/* More models */}
-            <button className="flex items-center w-full px-3.5 py-2 rounded-[10px] hover:bg-[#34332f] transition-colors">
-              <span className="text-[15px] font-[450] text-[#f2f2ef]">More models</span>
-              <ChevronRight size={15} className="ml-auto text-[#8a8a85]" />
+            <button className="flex items-center w-full px-3 py-1.5 rounded-[10px] hover:bg-[#34332f] transition-colors">
+              <span className="text-[13.5px] font-[450] text-[#f2f2ef]">More models</span>
+              <ChevronRight size={14} className="ml-auto text-[#8a8a85]" />
             </button>
           </div>
         </>
@@ -1596,15 +1597,150 @@ function ClaudeChatsView({ onNavigate }: { onNavigate: (v: string) => void }) {
   )
 }
 
+function ChromeLogo({ size = 40 }: { size?: number }) {
+  return <img src="/chrome-icon.png" width={size} height={size} alt="Google Chrome" draggable={false} style={{ display: 'block' }} />
+}
+
+function Dock({ running, minimized, onOpenChrome, onRestore }: { running: boolean; minimized: boolean; onOpenChrome: () => void; onRestore: () => void }) {
+  return (
+    <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', zIndex: 60 }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 6, padding: '4px 8px',
+        background: 'rgba(255,255,255,0.16)', border: '1px solid rgba(255,255,255,0.22)',
+        borderRadius: 16, backdropFilter: 'blur(28px) saturate(1.6)', WebkitBackdropFilter: 'blur(28px) saturate(1.6)',
+        boxShadow: '0 12px 34px rgba(0,0,0,0.38)',
+      }}>
+        {/* Chrome app */}
+        <button
+          onClick={onOpenChrome}
+          title="Google Chrome"
+          aria-label="Google Chrome"
+          className="group"
+          style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}
+        >
+          <span
+            className="transition-transform duration-150 group-hover:-translate-y-1 group-hover:scale-105"
+            style={{ width: 44, height: 44, borderRadius: 11, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 3px 8px rgba(0,0,0,0.18)' }}
+          >
+            <ChromeLogo size={38} />
+          </span>
+          <span style={{ width: 3.5, height: 3.5, borderRadius: '50%', background: running ? 'rgba(255,255,255,0.92)' : 'transparent' }} />
+        </button>
+
+        {/* Minimized window — appears to the right, past a divider, only when minimized */}
+        {minimized && (
+          <>
+            <span style={{ width: 1, height: 38, background: 'rgba(255,255,255,0.32)', margin: '0 2px' }} />
+            <button
+              onClick={onRestore}
+              title="Claude — Google Chrome"
+              aria-label="Restore window"
+              className="group"
+              style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}
+            >
+              <span
+                className="transition-transform duration-150 group-hover:-translate-y-1 group-hover:scale-105"
+                style={{ width: 44, height: 44, borderRadius: 11, background: '#1a1a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 3px 8px rgba(0,0,0,0.18)' }}
+              >
+                <svg width="24" height="24" viewBox="0 0 100 100"><path d={CLAUDE_SYMBOL_PATH} fill="#d97757" /></svg>
+              </span>
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function App() {
   const [view, setView] = useState('home')
+  const [windowOpen, setWindowOpen] = useState(true)
+  const [minimized, setMinimized] = useState(false)
+  const [maximized, setMaximized] = useState(false)
 
-  return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden">
-      <MacMenuBar />
-      {/* Chrome layers sit on solid dark, hiding the wallpaper beneath them */}
+  // Floating-window geometry (coords relative to the desktop area below the menu bar).
+  const MENUBAR_H = 30                 // menu bar height (also the desktop area's top offset)
+  const DOCK_RESERVED = 70             // vertical space the dock occupies at the bottom
+  const MIN_W = 520, MIN_H = 380
+  const maxBottom = () => window.innerHeight - MENUBAR_H - DOCK_RESERVED  // window bottom can't pass this
+  const initW = Math.round(window.innerWidth * 0.94)
+  const initH = Math.min(Math.round(window.innerHeight * 0.90), maxBottom() - 14)
+  const [winSize, setWinSize] = useState({ w: initW, h: initH })
+  const [winPos, setWinPos] = useState({ x: Math.round((window.innerWidth - initW) / 2), y: 14 })
+  const [resizing, setResizing] = useState(false)
+  const [dragging, setDragging] = useState(false)
+  const resizeRef = useRef({ dir: '', startX: 0, startY: 0, startW: 0, startH: 0, startLeft: 0, startTop: 0 })
+  const dragRef = useRef({ offX: 0, offY: 0 })
+
+  useEffect(() => {
+    if (!resizing) return
+    const move = (e: MouseEvent) => {
+      const r = resizeRef.current
+      const dx = e.clientX - r.startX
+      const dy = e.clientY - r.startY
+      const right = r.startLeft + r.startW
+      const bottom = r.startTop + r.startH
+      const botLimit = maxBottom()
+      let w = r.startW, h = r.startH, x = r.startLeft, y = r.startTop
+      if (r.dir.includes('e')) w = Math.min(window.innerWidth - r.startLeft, Math.max(MIN_W, r.startW + dx))
+      if (r.dir.includes('s')) h = Math.min(botLimit - r.startTop, Math.max(MIN_H, r.startH + dy))
+      if (r.dir.includes('w')) { w = Math.max(MIN_W, r.startW - dx); x = right - w; if (x < 0) { x = 0; w = right } }
+      if (r.dir.includes('n')) { h = Math.max(MIN_H, r.startH - dy); y = bottom - h; if (y < 0) { y = 0; h = bottom } }
+      setWinSize({ w, h })
+      setWinPos({ x, y })
+    }
+    const up = () => setResizing(false)
+    window.addEventListener('mousemove', move)
+    window.addEventListener('mouseup', up)
+    return () => {
+      window.removeEventListener('mousemove', move)
+      window.removeEventListener('mouseup', up)
+    }
+  }, [resizing])
+
+  useEffect(() => {
+    if (!dragging) return
+    const move = (e: MouseEvent) => {
+      const botLimit = maxBottom()
+      let x = e.clientX - dragRef.current.offX
+      let y = e.clientY - dragRef.current.offY
+      x = Math.max(0, Math.min(x, window.innerWidth - winSize.w))
+      y = Math.max(0, Math.min(y, botLimit - winSize.h))
+      setWinPos({ x, y })
+    }
+    const up = () => setDragging(false)
+    window.addEventListener('mousemove', move)
+    window.addEventListener('mouseup', up)
+    return () => {
+      window.removeEventListener('mousemove', move)
+      window.removeEventListener('mouseup', up)
+    }
+  }, [dragging, winSize])
+
+  const startResize = (dir: string) => (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    resizeRef.current = { dir, startX: e.clientX, startY: e.clientY, startW: winSize.w, startH: winSize.h, startLeft: winPos.x, startTop: winPos.y }
+    setResizing(true)
+  }
+
+  const startDrag = (e: React.MouseEvent) => {
+    if (maximized) return
+    if ((e.target as HTMLElement).closest('button, a, input')) return  // don't drag when hitting controls
+    dragRef.current = { offX: e.clientX - winPos.x, offY: e.clientY - winPos.y }
+    setDragging(true)
+  }
+
+  // The browser window: Chrome chrome + the Claude app.
+  const windowChrome = (
+    <>
       <div className="flex flex-col flex-shrink-0 bg-[#1d1d1f]">
-        <ChromeTabStrip />
+        <ChromeTabStrip
+          onClose={() => { setMinimized(false); setWindowOpen(false) }}
+          onMinimize={() => setMinimized(true)}
+          onMaximize={() => setMaximized(m => !m)}
+          onDragStart={startDrag}
+        />
         <ChromeToolbar />
         <BookmarksBar />
       </div>
@@ -1619,6 +1755,60 @@ export default function App() {
         {view === 'whoami' && <ClaudeChatViewWhoAmI />}
         {view === 'books' && <ClaudeChatViewBooks />}
         {view === 'restaurants' && <ClaudeChatViewRestaurants />}
+      </div>
+    </>
+  )
+
+  const resizeHandles = (
+    <>
+      <div onMouseDown={startResize('n')}  style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 6, cursor: 'ns-resize', zIndex: 40 }} />
+      <div onMouseDown={startResize('s')}  style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 6, cursor: 'ns-resize', zIndex: 40 }} />
+      <div onMouseDown={startResize('e')}  style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: 6, cursor: 'ew-resize', zIndex: 40 }} />
+      <div onMouseDown={startResize('w')}  style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: 6, cursor: 'ew-resize', zIndex: 40 }} />
+      <div onMouseDown={startResize('nw')} style={{ position: 'absolute', top: 0, left: 0, width: 16, height: 16, cursor: 'nwse-resize', zIndex: 41 }} />
+      <div onMouseDown={startResize('ne')} style={{ position: 'absolute', top: 0, right: 0, width: 16, height: 16, cursor: 'nesw-resize', zIndex: 41 }} />
+      <div onMouseDown={startResize('sw')} style={{ position: 'absolute', bottom: 0, left: 0, width: 16, height: 16, cursor: 'nesw-resize', zIndex: 41 }} />
+      <div onMouseDown={startResize('se')} style={{ position: 'absolute', bottom: 0, right: 0, width: 16, height: 16, cursor: 'nwse-resize', zIndex: 41 }} />
+    </>
+  )
+
+  return (
+    <div
+      className="flex flex-col h-screen w-screen overflow-hidden bg-cover bg-center"
+      style={{ backgroundImage: 'url(/sequoia-sunrise.jpeg)' }}
+    >
+      <MacMenuBar />
+
+      <div className="relative flex-1 overflow-hidden">
+        {windowOpen && !minimized ? (
+          maximized ? (
+            <div className="absolute inset-0 flex flex-col overflow-hidden">
+              {windowChrome}
+            </div>
+          ) : (
+            <div
+              className="absolute flex flex-col overflow-hidden rounded-[10px] border border-black/40 shadow-[0_30px_80px_rgba(0,0,0,0.55)]"
+              style={{ left: winPos.x, top: winPos.y, width: winSize.w, height: winSize.h }}
+            >
+              {windowChrome}
+              {resizeHandles}
+            </div>
+          )
+        ) : !windowOpen ? (
+          // Screensaver: wallpaper shows through; click anywhere to reopen the window.
+          <button
+            onClick={() => setWindowOpen(true)}
+            aria-label="Open window"
+            className="absolute inset-0 w-full h-full cursor-default"
+          />
+        ) : null}
+
+        <Dock
+          running={windowOpen}
+          minimized={windowOpen && minimized}
+          onOpenChrome={() => { setMinimized(false); setWindowOpen(true) }}
+          onRestore={() => { setMinimized(false); setWindowOpen(true) }}
+        />
       </div>
     </div>
   )
