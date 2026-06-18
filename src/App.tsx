@@ -60,6 +60,19 @@ function useClockTime(): string {
   return time
 }
 
+// ─── Mobile breakpoint hook (< 768px, matches Tailwind md) ────────────────────
+
+function useIsMobile() {
+  const [m, setM] = useState(() => typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const fn = () => setM(mq.matches)
+    mq.addEventListener('change', fn)
+    return () => mq.removeEventListener('change', fn)
+  }, [])
+  return m
+}
+
 const CLAUDE_SYMBOL_PATH = "m19.6 66.5 19.7-11 .3-1-.3-.5h-1l-3.3-.2-11.2-.3L14 53l-9.5-.5-2.4-.5L0 49l.2-1.5 2-1.3 2.9.2 6.3.5 9.5.6 6.9.4L38 49.1h1.6l.2-.7-.5-.4-.4-.4L29 41l-10.6-7-5.6-4.1-3-2-1.5-2-.6-4.2 2.7-3 3.7.3.9.2 3.7 2.9 8 6.1L37 36l1.5 1.2.6-.4.1-.3-.7-1.1L33 25l-6-10.4-2.7-4.3-.7-2.6c-.3-1-.4-2-.4-3l3-4.2L28 0l4.2.6L33.8 2l2.6 6 4.1 9.3L47 29.9l2 3.8 1 3.4.3 1h.7v-.5l.5-7.2 1-8.7 1-11.2.3-3.2 1.6-3.8 3-2L61 2.6l2 2.9-.3 1.8-1.1 7.7L59 27.1l-1.5 8.2h.9l1-1.1 4.1-5.4 6.9-8.6 3-3.5L77 13l2.3-1.8h4.3l3.1 4.7-1.4 4.9-4.4 5.6-3.7 4.7-5.3 7.1-3.2 5.7.3.4h.7l12-2.6 6.4-1.1 7.6-1.3 3.5 1.6.4 1.6-1.4 3.4-8.2 2-9.6 2-14.3 3.3-.2.1.2.3 6.4.6 2.8.2h6.8l12.6 1 3.3 2 1.9 2.7-.3 2-5.1 2.6-6.8-1.6-16-3.8-5.4-1.3h-.8v.4l4.6 4.5 8.3 7.5L89 80.1l.5 2.4-1.3 2-1.4-.2-9.2-7-3.6-3-8-6.8h-.5v.7l1.8 2.7 9.8 14.7.5 4.5-.7 1.4-2.6 1-2.7-.6-5.8-8-6-9-4.7-8.2-.5.4-2.9 30.2-1.3 1.5-3 1.2-2.5-2-1.4-3 1.4-6.2 1.6-8 1.3-6.4 1.2-7.9.7-2.6v-.2H49L43 72l-9 12.3-7.2 7.6-1.7.7-3-1.5.3-2.8L24 86l10-12.8 6-7.9 4-4.6-.1-.5h-.3L17.2 77.4l-4.7.6-2-2 .2-3 1-1 8-5.5Z"
 
 function ClaudeAsterisk({ size = 40, color = '#c96442' }: { size?: number; color?: string }) {
@@ -125,7 +138,7 @@ function NowPlaying({ open, playing, elapsed, duration, onToggle, onSeek }: {
   return (
     <div
       style={{
-        position: 'absolute', top: 'calc(100% + 9px)', left: 0, width: 320, zIndex: 80,
+        position: 'absolute', top: 'calc(100% + 9px)', left: 0, width: 'min(320px, calc(100vw - 24px))', zIndex: 80,
         borderRadius: 16, padding: 13,
         display: 'flex', alignItems: 'center', gap: 12,
         background: 'rgba(28,28,30,0.9)',
@@ -194,6 +207,7 @@ const IC: React.CSSProperties = { display:'flex', alignItems:'center', justifyCo
 
 function MacMenuBar() {
   const clock = useClockTime()
+  const isMobile = useIsMobile()
   const audioRef = useRef<HTMLAudioElement>(null)
   const [npOpen, setNpOpen] = useState(false)
   const [npPlaying, setNpPlaying] = useState(false)
@@ -223,7 +237,7 @@ function MacMenuBar() {
   return (
     <div style={{
       flexShrink: 0, height: 30, zIndex: 50, overflow: 'visible',
-      display: 'flex', alignItems: 'center', padding: '0 12px 0 16px', color: '#fff',
+      display: 'flex', alignItems: 'center', padding: isMobile ? '0 8px' : '0 12px 0 16px', color: '#fff',
       background: 'rgba(0,0,0,0.28)',
       backdropFilter: 'blur(28px) saturate(1.6)',
       WebkitBackdropFilter: 'blur(28px) saturate(1.6)',
@@ -236,7 +250,7 @@ function MacMenuBar() {
         <span style={{ fontWeight:700, fontSize:14, letterSpacing:'.1px' }}>Chrome</span>
       </div>
       {/* Right */}
-      <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:15 }}>
+      <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap: isMobile ? 10 : 15 }}>
         {/* Media play */}
         <span style={{ ...IC, position: 'relative' }}>
           <button
@@ -268,50 +282,54 @@ function MacMenuBar() {
             onSeek={seekTo}
           />
         </span>
-        {/* A box (input source) */}
-        <span style={{ width:21, height:18, borderRadius:5, background:'#f2f2f2', color:'#1d1d1f',
-          display:'flex', alignItems:'center', justifyContent:'center', fontWeight:600, fontSize:12 }}>
-          A
-        </span>
-        {/* Do Not Disturb moon */}
-        <span style={IC}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff">
-            <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
-          </svg>
-        </span>
-        {/* Battery charging */}
-        <span style={IC}>
-          <svg width="27" height="16" viewBox="0 0 34 18" fill="none">
-            <rect x="1" y="3" width="27" height="12" rx="3.2" stroke="#fff" strokeWidth="1.4" opacity=".55"/>
-            <rect x="3" y="5" width="14" height="8" rx="1.5" fill="#fff"/>
-            <path d="M19 4.5l-3.5 4.8h2.6L17 13.5l4.2-5.4h-2.7z" fill="#fff"/>
-            <rect x="30" y="6.5" width="2.2" height="5" rx="1.1" fill="#fff" opacity=".55"/>
-          </svg>
-        </span>
-        {/* Wi-Fi */}
-        <span style={IC}>
-          <svg width="19" height="15" viewBox="0 0 24 18" fill="#fff">
-            <path d="M12 4.2c3.7 0 7.1 1.5 9.6 3.9.5.5.5 1.2.1 1.7-.5.5-1.2.5-1.7.1A11.1 11.1 0 0 0 12 6.6 11.1 11.1 0 0 0 4 9.9c-.5.4-1.3.4-1.7-.1-.4-.5-.4-1.2.1-1.7C4.9 5.7 8.3 4.2 12 4.2z"/>
-            <path d="M12 9c2.1 0 4.1.8 5.6 2.3.5.5.5 1.2 0 1.7s-1.2.5-1.7 0A5.6 5.6 0 0 0 12 11.4a5.6 5.6 0 0 0-3.9 1.6c-.5.5-1.2.5-1.7 0s-.5-1.2 0-1.7A8 8 0 0 1 12 9z"/>
-            <circle cx="12" cy="15" r="1.7"/>
-          </svg>
-        </span>
-        {/* Spotlight search */}
-        <span style={IC}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.9" strokeLinecap="round">
-            <circle cx="10.5" cy="10.5" r="6.5"/>
-            <path d="M15.5 15.5L21 21"/>
-          </svg>
-        </span>
-        {/* Control Centre — two pill sliders */}
-        <span style={IC}>
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
-            <rect x="4" y="4.5"  width="16" height="6.2" rx="3.1" stroke="#fff" strokeWidth="1.4"/>
-            <circle cx="16.5" cy="7.6"  r="1.7" fill="#fff"/>
-            <rect x="4" y="13.3" width="16" height="6.2" rx="3.1" stroke="#fff" strokeWidth="1.4"/>
-            <circle cx="7.5"  cy="16.4" r="1.7" fill="#fff"/>
-          </svg>
-        </span>
+        {!isMobile && (
+          <>
+            {/* A box (input source) */}
+            <span style={{ width:21, height:18, borderRadius:5, background:'#f2f2f2', color:'#1d1d1f',
+              display:'flex', alignItems:'center', justifyContent:'center', fontWeight:600, fontSize:12 }}>
+              A
+            </span>
+            {/* Do Not Disturb moon */}
+            <span style={IC}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff">
+                <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+              </svg>
+            </span>
+            {/* Battery charging */}
+            <span style={IC}>
+              <svg width="27" height="16" viewBox="0 0 34 18" fill="none">
+                <rect x="1" y="3" width="27" height="12" rx="3.2" stroke="#fff" strokeWidth="1.4" opacity=".55"/>
+                <rect x="3" y="5" width="14" height="8" rx="1.5" fill="#fff"/>
+                <path d="M19 4.5l-3.5 4.8h2.6L17 13.5l4.2-5.4h-2.7z" fill="#fff"/>
+                <rect x="30" y="6.5" width="2.2" height="5" rx="1.1" fill="#fff" opacity=".55"/>
+              </svg>
+            </span>
+            {/* Wi-Fi */}
+            <span style={IC}>
+              <svg width="19" height="15" viewBox="0 0 24 18" fill="#fff">
+                <path d="M12 4.2c3.7 0 7.1 1.5 9.6 3.9.5.5.5 1.2.1 1.7-.5.5-1.2.5-1.7.1A11.1 11.1 0 0 0 12 6.6 11.1 11.1 0 0 0 4 9.9c-.5.4-1.3.4-1.7-.1-.4-.5-.4-1.2.1-1.7C4.9 5.7 8.3 4.2 12 4.2z"/>
+                <path d="M12 9c2.1 0 4.1.8 5.6 2.3.5.5.5 1.2 0 1.7s-1.2.5-1.7 0A5.6 5.6 0 0 0 12 11.4a5.6 5.6 0 0 0-3.9 1.6c-.5.5-1.2.5-1.7 0s-.5-1.2 0-1.7A8 8 0 0 1 12 9z"/>
+                <circle cx="12" cy="15" r="1.7"/>
+              </svg>
+            </span>
+            {/* Spotlight search */}
+            <span style={IC}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.9" strokeLinecap="round">
+                <circle cx="10.5" cy="10.5" r="6.5"/>
+                <path d="M15.5 15.5L21 21"/>
+              </svg>
+            </span>
+            {/* Control Centre — two pill sliders */}
+            <span style={IC}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+                <rect x="4" y="4.5"  width="16" height="6.2" rx="3.1" stroke="#fff" strokeWidth="1.4"/>
+                <circle cx="16.5" cy="7.6"  r="1.7" fill="#fff"/>
+                <rect x="4" y="13.3" width="16" height="6.2" rx="3.1" stroke="#fff" strokeWidth="1.4"/>
+                <circle cx="7.5"  cy="16.4" r="1.7" fill="#fff"/>
+              </svg>
+            </span>
+          </>
+        )}
         {/* Live clock */}
         <span style={{ fontSize:13.5, letterSpacing:'.2px', whiteSpace:'nowrap' }}>{clock}</span>
       </div>
@@ -322,9 +340,10 @@ function MacMenuBar() {
 // ─── Chrome Tab Strip ────────────────────────────────────────────────────────
 
 function ChromeTabStrip({ onClose, onMinimize, onMaximize, onDragStart }: { onClose: () => void; onMinimize: () => void; onMaximize: () => void; onDragStart?: (e: React.MouseEvent) => void }) {
+  const isMobile = useIsMobile()
   const dot = (bg: string): React.CSSProperties => ({ width:12, height:12, borderRadius:'50%', background:bg, display:'block', border:'none', padding:0, cursor:'pointer' })
   return (
-    <div onMouseDown={onDragStart} style={{ background:'#1d1d1f', height:42, display:'flex', alignItems:'flex-end', padding:'0 8px', flexShrink:0, userSelect:'none', cursor: onDragStart ? 'grab' : undefined }}>
+    <div onMouseDown={onDragStart} style={{ background:'#1d1d1f', height:42, display:'flex', alignItems:'flex-end', padding: isMobile ? '0 4px' : '0 8px', flexShrink:0, userSelect:'none', cursor: onDragStart ? 'grab' : undefined }}>
       {/* Traffic lights */}
       <div style={{ display:'flex', alignItems:'center', gap:8, padding:'0 16px 0 6px', height:42 }}>
         <button onClick={onClose} aria-label="Close" style={dot('#ff5f57')}/>
@@ -351,18 +370,22 @@ function ChromeTabStrip({ onClose, onMinimize, onMaximize, onDragStart }: { onCl
       </div>
 
       {/* New tab */}
-      <div style={{ display:'flex', alignItems:'center', marginBottom:7, marginLeft:8, flexShrink:0 }}>
-        <button style={{ width:28, height:28, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', color:'#b8bcc2', background:'transparent', border:'none', cursor:'pointer' }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
-        </button>
-      </div>
+      {!isMobile && (
+        <div style={{ display:'flex', alignItems:'center', marginBottom:7, marginLeft:8, flexShrink:0 }}>
+          <button style={{ width:28, height:28, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', color:'#b8bcc2', background:'transparent', border:'none', cursor:'pointer' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </div>
+      )}
 
       {/* Ask Gemini — far right */}
-      <div style={{ display:'flex', alignItems:'center', marginBottom:7, marginLeft:'auto', flexShrink:0 }}>
-        <button style={{ display:'flex', alignItems:'center', gap:7, background:'#3a3a3c', border:'none', padding:'7px 14px', borderRadius:12, fontSize:13.5, fontWeight:500, color:'#fff', cursor:'pointer' }}>
-          <GeminiIcon size={16} /> Ask Gemini
-        </button>
-      </div>
+      {!isMobile && (
+        <div style={{ display:'flex', alignItems:'center', marginBottom:7, marginLeft:'auto', flexShrink:0 }}>
+          <button style={{ display:'flex', alignItems:'center', gap:7, background:'#3a3a3c', border:'none', padding:'7px 14px', borderRadius:12, fontSize:13.5, fontWeight:500, color:'#fff', cursor:'pointer' }}>
+            <GeminiIcon size={16} /> Ask Gemini
+          </button>
+        </div>
+      )}
     </div>
   )
 }
@@ -372,49 +395,67 @@ function ChromeTabStrip({ onClose, onMinimize, onMaximize, onDragStart }: { onCl
 const TB_BTN: React.CSSProperties = { width:34, height:34, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', color:'#e8eaed', flexShrink:0, background:'transparent', border:'none', cursor:'pointer' }
 const SEP: React.CSSProperties   = { width:1, height:22, background:'rgba(255,255,255,.16)', margin:'0 6px', flexShrink:0 }
 
-function ChromeToolbar() {
+function ChromeToolbar({ onMenu }: { onMenu?: () => void }) {
+  const isMobile = useIsMobile()
   return (
-    <div style={{ background:'#393a3f', height:46, display:'flex', alignItems:'center', gap:4, padding:'0 10px', flexShrink:0, userSelect:'none' }}>
-      {/* Back */}
-      <button style={TB_BTN}>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c5c8cd" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
-      </button>
-      {/* Forward (dimmed) */}
-      <button style={{ ...TB_BTN, opacity:.38 }}>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c5c8cd" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-      </button>
-      {/* Reload */}
-      <button style={TB_BTN}>
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#c5c8cd" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v5h-5"/></svg>
-      </button>
+    <div style={{ background:'#393a3f', height:46, display:'flex', alignItems:'center', gap:4, padding: isMobile ? '0 6px' : '0 10px', flexShrink:0, userSelect:'none' }}>
+      {/* Hamburger (mobile only) — opens the sidebar drawer */}
+      {isMobile && (
+        <button onClick={onMenu} aria-label="Open menu" style={TB_BTN}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c5c8cd" strokeWidth="1.8" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      )}
+
+      {!isMobile && (
+        <>
+          {/* Back */}
+          <button style={TB_BTN}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c5c8cd" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+          </button>
+          {/* Forward (dimmed) */}
+          <button style={{ ...TB_BTN, opacity:.38 }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c5c8cd" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+          {/* Reload */}
+          <button style={TB_BTN}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#c5c8cd" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v5h-5"/></svg>
+          </button>
+        </>
+      )}
 
       {/* Omnibox */}
-      <div style={{ flex:1, height:34, margin:'0 10px', background:'#171719', borderRadius:18, display:'flex', alignItems:'center', gap:11, padding:'0 16px', color:'#b8bcc2', fontSize:13.5 }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round">
+      <div style={{ flex:1, minWidth:0, height:34, margin:'0 10px', background:'#171719', borderRadius:18, display:'flex', alignItems:'center', gap: isMobile ? 7 : 11, padding: isMobile ? '0 12px' : '0 16px', color:'#b8bcc2', fontSize:13.5, overflow:'hidden' }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" style={{ flexShrink:0 }}>
           <path d="M3 7h10M17 7h4"/><circle cx="15" cy="7" r="2.2"/>
           <path d="M3 17h4M11 17h10"/><circle cx="9" cy="17" r="2.2"/>
         </svg>
-        <span><span style={{ color:'#e8eaed' }}>claude.ai</span>/chat/78a22cc0-798a-4c76-9347-af8d8a5d902c</span>
+        <span style={{ whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}><span style={{ color:'#e8eaed' }}>claude.ai</span>/chat/78a22cc0-798a-4c76-9347-af8d8a5d902c</span>
       </div>
 
-      {/* Extensions (puzzle piece) */}
-      <button style={TB_BTN}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c5c8cd" strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round">
-          <path d="M6 6 L9.5 6 A2.5 2.5 0 0 1 14.5 6 L18 6 Q20 6 20 8 L20 9.5 A2.5 2.5 0 0 1 20 14.5 L20 18 Q20 20 18 20 L6 20 Q4 20 4 18 L4 14.5 A2.5 2.5 0 0 0 4 9.5 L4 8 Q4 6 6 6 Z"/>
-        </svg>
-      </button>
-      <div style={SEP}/>
+      {!isMobile && (
+        <>
+          {/* Extensions (puzzle piece) */}
+          <button style={TB_BTN}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c5c8cd" strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round">
+              <path d="M6 6 L9.5 6 A2.5 2.5 0 0 1 14.5 6 L18 6 Q20 6 20 8 L20 9.5 A2.5 2.5 0 0 1 20 14.5 L20 18 Q20 20 18 20 L6 20 Q4 20 4 18 L4 14.5 A2.5 2.5 0 0 0 4 9.5 L4 8 Q4 6 6 6 Z"/>
+            </svg>
+          </button>
+          <div style={SEP}/>
+        </>
+      )}
       {/* Avatar */}
       <div style={{ width:27, height:27, borderRadius:'50%', background:'#6e40c9', color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, margin:'0 4px', flexShrink:0 }}>S</div>
       {/* New Chrome available + menu (combined pill) */}
-      <button style={{ display:'flex', alignItems:'center', gap:10, background:'#2f5c8f', color:'#fff', fontSize:13, padding:'8px 14px', borderRadius:20, whiteSpace:'nowrap', border:'none', cursor:'pointer' }}>
-        New Chrome available
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <circle cx="12" cy="5"  r="1.7"/>
-          <circle cx="12" cy="12" r="1.7"/>
-          <circle cx="12" cy="19" r="1.7"/>
-        </svg>
-      </button>
+      {!isMobile && (
+        <button style={{ display:'flex', alignItems:'center', gap:10, background:'#2f5c8f', color:'#fff', fontSize:13, padding:'8px 14px', borderRadius:20, whiteSpace:'nowrap', border:'none', cursor:'pointer' }}>
+          New Chrome available
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="5"  r="1.7"/>
+            <circle cx="12" cy="12" r="1.7"/>
+            <circle cx="12" cy="19" r="1.7"/>
+          </svg>
+        </button>
+      )}
     </div>
   )
 }
@@ -499,7 +540,7 @@ const RECENTS = [
   'Restaurant Recommendations',
 ]
 
-function ClaudeSidebar({ onNavigate }: { onNavigate: (view: string) => void }) {
+function ClaudeSidebar({ onNavigate, isMobile = false, open = false, onClose }: { onNavigate: (view: string) => void; isMobile?: boolean; open?: boolean; onClose?: () => void }) {
   const [activeItem, setActiveItem] = useState('New chat')
   const [activeRecent, setActiveRecent] = useState(0)
 
@@ -508,8 +549,18 @@ function ClaudeSidebar({ onNavigate }: { onNavigate: (view: string) => void }) {
     { icon: <MessagesSquare size={14} />,  label: 'Chats',     view: 'chats' },
   ]
 
+  const close = () => { if (isMobile) onClose?.() }
+
+  const asideClass = isMobile
+    ? `fixed left-0 top-0 bottom-0 z-[61] w-[270px] max-w-[82vw] flex flex-col bg-[#1c1c1c] overflow-hidden border-r border-[#2a2a2a] transition-transform duration-200 ${open ? 'translate-x-0' : '-translate-x-full'}`
+    : 'flex flex-col w-[248px] min-w-[248px] bg-[#1c1c1c] h-full overflow-hidden border-r border-[#2a2a2a]'
+
   return (
-    <aside className="flex flex-col w-[248px] min-w-[248px] bg-[#1c1c1c] h-full overflow-hidden border-r border-[#2a2a2a]">
+    <>
+    {isMobile && open && (
+      <div className="fixed inset-0 z-[60] bg-black/50" onClick={onClose} />
+    )}
+    <aside className={asideClass}>
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
         <span className="font-lora text-[17px] font-medium text-[#e8e0d4] tracking-[-0.3px]">Claude</span>
@@ -520,7 +571,7 @@ function ClaudeSidebar({ onNavigate }: { onNavigate: (view: string) => void }) {
         {navItems.map(({ icon, label, view }) => (
           <button
             key={label}
-            onClick={() => { setActiveItem(label); if (view) onNavigate(view) }}
+            onClick={() => { setActiveItem(label); if (view) onNavigate(view); close() }}
             className={`flex items-center gap-2.5 w-full px-3 py-1.5 rounded-md text-[13px] text-left transition-colors mb-0.5
               ${activeItem === label ? 'bg-[#2e2e2e] text-[#e0e0e0]' : 'text-[#888] hover:bg-[#242424] hover:text-[#ccc]'}`}
           >
@@ -534,7 +585,7 @@ function ClaudeSidebar({ onNavigate }: { onNavigate: (view: string) => void }) {
       <div className="px-2 mb-3">
         <p className="px-3 py-1 text-[10px] font-semibold text-[#555] uppercase tracking-widest">Products</p>
         <button
-          onClick={() => { setActiveItem('Code'); onNavigate('code') }}
+          onClick={() => { setActiveItem('Code'); onNavigate('code'); close() }}
           className={`flex items-center gap-2.5 w-full px-3 py-1.5 rounded-md text-[13px] transition-colors mb-0.5
             ${activeItem === 'Code' ? 'bg-[#2e2e2e] text-[#e0e0e0]' : 'text-[#888] hover:bg-[#242424] hover:text-[#ccc]'}`}
         >
@@ -547,7 +598,7 @@ function ClaudeSidebar({ onNavigate }: { onNavigate: (view: string) => void }) {
       <div className="px-2 mb-3">
         <p className="px-3 py-1 text-[10px] font-semibold text-[#555] uppercase tracking-widest">Starred</p>
         <button
-          onClick={() => { setActiveItem('Who am I?'); onNavigate('whoami') }}
+          onClick={() => { setActiveItem('Who am I?'); onNavigate('whoami'); close() }}
           className={`flex items-center gap-2 w-full px-3 py-1.5 rounded-md text-[12px] transition-colors truncate
             ${activeItem === 'Who am I?' ? 'bg-[#2e2e2e] text-[#ddd]' : 'text-[#888] hover:bg-[#242424] hover:text-[#ccc]'}`}
         >
@@ -570,6 +621,7 @@ function ClaudeSidebar({ onNavigate }: { onNavigate: (view: string) => void }) {
                 else if (chat === 'Marathon Training Plan') onNavigate('marathon')
                 else if (chat === 'Book Recommendations') onNavigate('books')
                 else if (chat === 'Restaurant Recommendations') onNavigate('restaurants')
+                close()
               }}
               className={`flex w-full px-3 py-1.5 rounded-md text-[12px] text-left truncate transition-colors mb-0.5
                 ${activeRecent === i ? 'bg-[#2e2e2e] text-[#ddd]' : 'text-[#777] hover:bg-[#242424] hover:text-[#bbb]'}`}
@@ -589,6 +641,7 @@ function ClaudeSidebar({ onNavigate }: { onNavigate: (view: string) => void }) {
         </div>
       </div>
     </aside>
+    </>
   )
 }
 
@@ -681,6 +734,7 @@ function ModelSelector() {
 
 function ClaudeHomeView() {
   const [input, setInput] = useState('')
+  const isMobile = useIsMobile()
 
   const suggestions = [
     { icon: <Pen size={16} />,             label: 'Write' },
@@ -693,11 +747,11 @@ function ClaudeHomeView() {
   return (
     <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
       {/* Hero – centered vertically in remaining space */}
-      <div className="flex flex-col items-center justify-center flex-1 px-6 pb-8">
+      <div className="flex flex-col items-center justify-center flex-1 px-4 md:px-6 pb-8">
         {/* Asterisk + "smera returns!" */}
-        <div className="flex items-center gap-4 mb-10">
-          <ClaudeAsterisk size={54} color="#c96442" />
-          <h1 className="font-lora text-[42px] font-medium tracking-[-1px] text-[#e8d5c4] leading-none">
+        <div className="flex items-center gap-3 mb-6 md:gap-4 md:mb-10">
+          <ClaudeAsterisk size={isMobile ? 38 : 54} color="#c96442" />
+          <h1 className="font-lora text-[28px] md:text-[42px] font-medium tracking-[-1px] text-[#e8d5c4] leading-none">
             smera returns!
           </h1>
         </div>
@@ -948,13 +1002,13 @@ function termBanner(): TermLine[] {
 }
 
 function TerminalWindow({ onClose }: { onClose: () => void }) {
-  const W = 580                       // windowed width
+  const W = Math.min(580, window.innerWidth - 24)   // windowed width (clamped to viewport)
   const SCREEN_H = 360                // windowed terminal height
 
-  const MIN_W = 320                   // smallest the window can shrink to
+  const MIN_W = 280                   // smallest the window can shrink to
   const MIN_H = 160                   // smallest screen (content) height
 
-  const [pos, setPos] = useState({ x: window.innerWidth / 2 - W / 2, y: 140 })
+  const [pos, setPos] = useState({ x: Math.max(12, window.innerWidth / 2 - W / 2), y: 140 })
   const [size, setSize] = useState({ w: W, h: SCREEN_H })
   const [dragging, setDragging] = useState(false)
   const [resizing, setResizing] = useState(false)
@@ -1268,7 +1322,7 @@ function ClaudeCodeView() {
   ]
   return (
     <main className="flex-1 h-full bg-[#1a1a1a] overflow-y-auto">
-      <div className="max-w-3xl mx-auto px-8 py-16">
+      <div className="max-w-3xl mx-auto px-4 md:px-8 py-16">
         {/* Header */}
         <div className="text-center mb-9">
           <h1 className="font-lora text-[32px] font-medium text-[#ece9e2] tracking-[-0.5px] mb-2">Get up and start building</h1>
@@ -1326,16 +1380,16 @@ function ClaudeChatView() {
   return (
     <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-1.5 px-6 py-3 flex-shrink-0">
+      <div className="flex items-center gap-1.5 px-4 md:px-6 py-3 flex-shrink-0">
         <span className="text-[15px] text-[#cfcfca]">Marathon Training Plan</span>
       </div>
 
       {/* Conversation */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-[720px] mx-auto px-6 pt-4 pb-40">
+        <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-4 pb-40">
           {/* User message */}
           <div className="flex justify-end mb-6">
-            <div className="max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[15px] text-[#ececec]">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
               Generate a marathon training plan for me
             </div>
           </div>
@@ -1347,13 +1401,13 @@ function ClaudeChatView() {
           </button>
 
           {/* Assistant message */}
-          <div className="font-lora text-[16px] leading-relaxed text-[#ece9e2]">
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2]">
             <p className="font-semibold mb-4">⚠️ Fair warning: Marathon training is gonna be HARD</p>
 
             <p className="font-semibold mb-3">16-Week Marathon Plan (The Quick Version)</p>
 
             <p className="font-semibold mb-1">Weeks 1-4: Base Building</p>
-            <ul className="list-disc pl-6 mb-4 space-y-0.5">
+            <ul className="list-disc pl-5 md:pl-6 mb-4 space-y-0.5">
               <li>Run 20-24 miles/week</li>
               <li>Long run: 6-8 miles</li>
               <li>Mix of easy runs and one speed workout per week</li>
@@ -1361,7 +1415,7 @@ function ClaudeChatView() {
             </ul>
 
             <p className="font-semibold mb-1">Weeks 5-8: Building</p>
-            <ul className="list-disc pl-6 mb-4 space-y-0.5">
+            <ul className="list-disc pl-5 md:pl-6 mb-4 space-y-0.5">
               <li>Run 25-32 miles/week</li>
               <li>Long run: 10-13 miles</li>
               <li>Add tempo runs, intervals</li>
@@ -1369,7 +1423,7 @@ function ClaudeChatView() {
             </ul>
 
             <p className="font-semibold mb-1">Weeks 9-12: Peak</p>
-            <ul className="list-disc pl-6 mb-4 space-y-0.5">
+            <ul className="list-disc pl-5 md:pl-6 mb-4 space-y-0.5">
               <li>Run 30-39 miles/week (max effort)</li>
               <li>Long run: 15-18 miles</li>
               <li>Lots of speed work</li>
@@ -1377,7 +1431,7 @@ function ClaudeChatView() {
             </ul>
 
             <p className="font-semibold mb-1">Weeks 13-15: Taper Down</p>
-            <ul className="list-disc pl-6 mb-4 space-y-0.5">
+            <ul className="list-disc pl-5 md:pl-6 mb-4 space-y-0.5">
               <li>Run 14-29 miles/week</li>
               <li>Cut volume in half basically</li>
               <li>Long run: 5-12 miles</li>
@@ -1385,14 +1439,14 @@ function ClaudeChatView() {
             </ul>
 
             <p className="font-semibold mb-1">Week 16: Race Week</p>
-            <ul className="list-disc pl-6 mb-4 space-y-0.5">
+            <ul className="list-disc pl-5 md:pl-6 mb-4 space-y-0.5">
               <li>Light running only</li>
               <li>Rest up</li>
               <li><strong className="font-semibold">RUN THE MARATHON</strong></li>
             </ul>
 
             <p className="font-semibold mb-1">Weekly Schedule:</p>
-            <ul className="list-disc pl-6 mb-4 space-y-0.5">
+            <ul className="list-disc pl-5 md:pl-6 mb-4 space-y-0.5">
               <li>1 long run (Saturday)</li>
               <li>1 speed workout (Tuesday - tempo, intervals, whatever)</li>
               <li>3-4 easy runs</li>
@@ -1400,7 +1454,7 @@ function ClaudeChatView() {
             </ul>
 
             <p className="font-semibold mb-1">Don't Die Tips:</p>
-            <ul className="list-disc pl-6 mb-4 space-y-0.5">
+            <ul className="list-disc pl-5 md:pl-6 mb-4 space-y-0.5">
               <li>Eat carbs on long runs (gels, etc.)</li>
               <li>Sleep 7-9 hours</li>
               <li>Strength train 2-3x/week</li>
@@ -1414,13 +1468,13 @@ function ClaudeChatView() {
 
           {/* User message */}
           <div className="flex justify-end mt-6">
-            <div className="max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[15px] text-[#ececec] leading-relaxed">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec] leading-relaxed">
               After I run the marathon, I have a half marathon 15 days later and then another half 2 weeks after that. Do you think that's possible?
             </div>
           </div>
 
           {/* Assistant message */}
-          <div className="font-lora text-[16px] leading-relaxed text-[#ece9e2] mt-6">
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mt-6">
             After searching the web, I found that you've actually done a marathon and two half marathons close together recently. You've got this.
           </div>
 
@@ -1472,16 +1526,16 @@ function ClaudeChatViewWhoAmI() {
   return (
     <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-1.5 px-6 py-3 flex-shrink-0">
+      <div className="flex items-center gap-1.5 px-4 md:px-6 py-3 flex-shrink-0">
         <span className="text-[15px] text-[#cfcfca]">Who am I?</span>
       </div>
 
       {/* Conversation */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-[720px] mx-auto px-6 pt-4 pb-40">
+        <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-4 pb-40">
           {/* User message */}
           <div className="flex justify-end mb-6">
-            <div className="max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[15px] text-[#ececec]">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
               Who am I?
             </div>
           </div>
@@ -1493,7 +1547,7 @@ function ClaudeChatViewWhoAmI() {
           </button>
 
           {/* Assistant message */}
-          <div className="font-lora text-[16px] leading-relaxed text-[#ece9e2]">
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2]">
             <p className="font-semibold mb-2">About You:</p>
             <p className="mb-1">Smera Dhananjaya 💝</p>
             <p className="mb-1">
@@ -1502,7 +1556,7 @@ function ClaudeChatViewWhoAmI() {
             <p className="mb-4">CS, <a href="https://www.gnxl.org/" target="_blank" rel="noopener noreferrer" className="text-[#7aa2e3] hover:underline">STEM education advocate</a>, building w/ intention</p>
 
             <p className="font-semibold mb-2">Quick Links</p>
-            <ul className="list-disc pl-6 space-y-1">
+            <ul className="list-disc pl-5 md:pl-6 space-y-1">
               <li><a href="https://x.com/SmeraDhananjaya" target="_blank" rel="noopener noreferrer" className="text-[#7aa2e3] hover:underline">X</a></li>
               <li><a href="https://github.com/SmeraDhananjaya0" target="_blank" rel="noopener noreferrer" className="text-[#7aa2e3] hover:underline">GitHub</a></li>
               <li><a href="https://www.linkedin.com/in/smera-dhananjaya-b4426721b/" target="_blank" rel="noopener noreferrer" className="text-[#7aa2e3] hover:underline">LinkedIn</a></li>
@@ -1551,16 +1605,16 @@ function ClaudeChatViewBooks() {
   return (
     <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-1.5 px-6 py-3 flex-shrink-0">
+      <div className="flex items-center gap-1.5 px-4 md:px-6 py-3 flex-shrink-0">
         <span className="text-[15px] text-[#cfcfca]">Book Recommendations</span>
       </div>
 
       {/* Conversation */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-[720px] mx-auto px-6 pt-4 pb-40">
+        <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-4 pb-40">
           {/* User message */}
           <div className="flex justify-end mb-6">
-            <div className="max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[15px] text-[#ececec]">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
               Give me some book recommendations
             </div>
           </div>
@@ -1572,9 +1626,9 @@ function ClaudeChatViewBooks() {
           </button>
 
           {/* Assistant message */}
-          <div className="font-lora text-[16px] leading-relaxed text-[#ece9e2]">
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2]">
             <p className="mb-3">Well knowing you, I understand these books to be your all time favorites Reading List (books u must read!!)</p>
-            <ul className="list-disc pl-6 space-y-1">
+            <ul className="list-disc pl-5 md:pl-6 space-y-1">
               <li>Abuse of Evil Richard Bernstein</li>
               <li>Animal Farm George Orwell</li>
               <li>Brave New World Aldous Huxley</li>
@@ -1638,16 +1692,16 @@ function ClaudeChatViewRestaurants() {
   return (
     <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-1.5 px-6 py-3 flex-shrink-0">
+      <div className="flex items-center gap-1.5 px-4 md:px-6 py-3 flex-shrink-0">
         <span className="text-[15px] text-[#cfcfca]">Restaurant Recommendations</span>
       </div>
 
       {/* Conversation */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-[720px] mx-auto px-6 pt-4 pb-40">
+        <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-4 pb-40">
           {/* User message */}
           <div className="flex justify-end mb-6">
-            <div className="max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[15px] text-[#ececec]">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
               Give me some restaurant recommendations
             </div>
           </div>
@@ -1659,9 +1713,9 @@ function ClaudeChatViewRestaurants() {
           </button>
 
           {/* Assistant message */}
-          <div className="font-lora text-[16px] leading-relaxed text-[#ece9e2]">
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2]">
             <p className="mb-3">Well knowing you, here's a few favs from Boston and NY</p>
-            <ul className="list-disc pl-6 space-y-1">
+            <ul className="list-disc pl-5 md:pl-6 space-y-1">
               <li>La Boca, NY</li>
               <li>Cafe Zaffri, NY</li>
               <li>Jean's, NY</li>
@@ -1727,16 +1781,16 @@ function ClaudeChatViewPrinciples() {
   return (
     <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-1.5 px-6 py-3 flex-shrink-0">
+      <div className="flex items-center gap-1.5 px-4 md:px-6 py-3 flex-shrink-0">
         <span className="text-[15px] text-[#cfcfca]">Principles I live by</span>
       </div>
 
       {/* Conversation */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-[720px] mx-auto px-6 pt-4 pb-40">
+        <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-4 pb-40">
           {/* User message */}
           <div className="flex justify-end mb-6">
-            <div className="max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[15px] text-[#ececec]">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
               ok be honest, what are the five things I actually live by?
             </div>
           </div>
@@ -1748,7 +1802,7 @@ function ClaudeChatViewPrinciples() {
           </button>
 
           {/* Assistant — intro + first principle */}
-          <div className="font-lora text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
             <p className="mb-3">I've got these down by now. one at a time, here we go.</p>
             <p className="font-semibold mb-1">{principles[0].title}</p>
             <p>{principles[0].body}</p>
@@ -1758,11 +1812,11 @@ function ClaudeChatViewPrinciples() {
           {principles.slice(1).map((p, i) => (
             <React.Fragment key={p.title}>
               <div className="flex justify-end mb-6">
-                <div className="max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[15px] text-[#ececec]">
+                <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
                   {followups[i]}
                 </div>
               </div>
-              <div className="font-lora text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+              <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
                 <p className="font-semibold mb-1">{p.title}</p>
                 <p>{p.body}</p>
               </div>
@@ -1771,11 +1825,11 @@ function ClaudeChatViewPrinciples() {
 
           {/* Closing exchange */}
           <div className="flex justify-end mb-6">
-            <div className="max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[15px] text-[#ececec]">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
               nailed it
             </div>
           </div>
-          <div className="font-lora text-[16px] leading-relaxed text-[#ece9e2]">
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2]">
             <p>you make it easy, you've only told me like a hundred times</p>
           </div>
 
@@ -1827,7 +1881,7 @@ function ClaudeChatsView({ onNavigate }: { onNavigate: (v: string) => void }) {
   return (
     <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-[820px] mx-auto px-8 pt-10 pb-20">
+        <div className="max-w-[820px] mx-auto px-4 md:px-8 pt-10 pb-20">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <h1 className="font-lora text-[28px] text-[#ece9e2]">Chats</h1>
@@ -1920,6 +1974,9 @@ export default function App() {
   const [windowOpen, setWindowOpen] = useState(true)
   const [minimized, setMinimized] = useState(false)
   const [maximized, setMaximized] = useState(false)
+  const isMobile = useIsMobile()
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const fullScreen = maximized || isMobile
 
   // Floating-window geometry (coords relative to the desktop area below the menu bar).
   const MENUBAR_H = 30                 // menu bar height (also the desktop area's top offset)
@@ -1988,13 +2045,15 @@ export default function App() {
   }
 
   const startDrag = (e: React.MouseEvent) => {
-    if (maximized) return
+    if (maximized || isMobile) return
     if ((e.target as HTMLElement).closest('button, a, input')) return  // don't drag when hitting controls
     dragRef.current = { offX: e.clientX - winPos.x, offY: e.clientY - winPos.y }
     setDragging(true)
   }
 
   // The browser window: Chrome chrome + the Claude app.
+  const navigate = (v: string) => { setView(v); setDrawerOpen(false) }
+
   const windowChrome = (
     <>
       <div className="flex flex-col flex-shrink-0 bg-[#1d1d1f]">
@@ -2004,17 +2063,17 @@ export default function App() {
           onMaximize={() => setMaximized(m => !m)}
           onDragStart={startDrag}
         />
-        <ChromeToolbar />
+        <ChromeToolbar onMenu={() => setDrawerOpen(true)} />
         <BookmarksBar />
       </div>
 
       {/* Claude App */}
       <div className="flex flex-1 overflow-hidden bg-[#1a1a1a]">
-        <ClaudeSidebar onNavigate={setView} />
+        <ClaudeSidebar onNavigate={navigate} isMobile={isMobile} open={drawerOpen} onClose={() => setDrawerOpen(false)} />
         {view === 'home' && <ClaudeHomeView />}
         {view === 'code' && <ClaudeCodeView />}
         {view === 'marathon' && <ClaudeChatView />}
-        {view === 'chats' && <ClaudeChatsView onNavigate={setView} />}
+        {view === 'chats' && <ClaudeChatsView onNavigate={navigate} />}
         {view === 'principles' && <ClaudeChatViewPrinciples />}
         {view === 'whoami' && <ClaudeChatViewWhoAmI />}
         {view === 'books' && <ClaudeChatViewBooks />}
@@ -2045,7 +2104,7 @@ export default function App() {
 
       <div className="relative flex-1 overflow-hidden">
         {windowOpen && !minimized ? (
-          maximized ? (
+          fullScreen ? (
             <div className="absolute inset-0 flex flex-col overflow-hidden">
               {windowChrome}
             </div>
@@ -2067,12 +2126,14 @@ export default function App() {
           />
         ) : null}
 
-        <Dock
-          running={windowOpen}
-          minimized={windowOpen && minimized}
-          onOpenChrome={() => { setMinimized(false); setWindowOpen(true) }}
-          onRestore={() => { setMinimized(false); setWindowOpen(true) }}
-        />
+        {!isMobile && (
+          <Dock
+            running={windowOpen}
+            minimized={windowOpen && minimized}
+            onOpenChrome={() => { setMinimized(false); setWindowOpen(true) }}
+            onRestore={() => { setMinimized(false); setWindowOpen(true) }}
+          />
+        )}
       </div>
     </div>
   )

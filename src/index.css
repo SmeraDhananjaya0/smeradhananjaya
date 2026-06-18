@@ -63,6 +63,11 @@ body {
           mask: radial-gradient(circle at top right, transparent 10px, #000 10px);
 }
 
+/* Mobile: let the Chrome tab flex to fill remaining width instead of forcing 210px */
+@media (max-width: 767px) {
+  .chrome-tab-v2 { min-width: 0; max-width: none; flex: 1 1 auto; }
+}
+
 /* Recents scroll */
 .recents-scroll {
   overflow-y: auto;
