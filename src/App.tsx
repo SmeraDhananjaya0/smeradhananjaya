@@ -1019,6 +1019,8 @@ function TerminalWindow({ onClose, onMinimize }: { onClose: () => void; onMinimi
   const [dragging, setDragging] = useState(false)
   const [resizing, setResizing] = useState(false)
   const [fullscreen, setFullscreen] = useState(false)
+  const isMobile = useIsMobile()
+  const fs = fullscreen || isMobile   // mobile is always full-screen (no drag/resize)
   const offset = useRef({ x: 0, y: 0 })
   const resizeRef = useRef({ dir: '', startX: 0, startY: 0, startW: 0, startH: 0, startLeft: 0, startTop: 0 })
 
@@ -1071,13 +1073,13 @@ function TerminalWindow({ onClose, onMinimize }: { onClose: () => void; onMinimi
   useEffect(() => { if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight }, [lines])
 
   const startDrag = (e: React.MouseEvent) => {
-    if (fullscreen) return
+    if (fs) return
     offset.current = { x: e.clientX - pos.x, y: e.clientY - pos.y }
     setDragging(true)
   }
 
   const startResize = (dir: string) => (e: React.MouseEvent) => {
-    if (fullscreen) return
+    if (fs) return
     e.preventDefault()
     e.stopPropagation()
     resizeRef.current = { dir, startX: e.clientX, startY: e.clientY, startW: size.w, startH: size.h, startLeft: pos.x, startTop: pos.y }
@@ -1242,16 +1244,16 @@ function TerminalWindow({ onClose, onMinimize }: { onClose: () => void; onMinimi
     }
   }
 
-  const frameStyle: React.CSSProperties = fullscreen
+  const frameStyle: React.CSSProperties = fs
     ? { position: 'fixed', inset: 0, width: '100%', height: '100%', borderRadius: 0, zIndex: 50 }
     : { position: 'fixed', left: pos.x, top: pos.y, width: size.w, borderRadius: 12, zIndex: 50 }
-  const screenHeight = fullscreen ? 'calc(100vh - 28px)' : size.h
+  const screenHeight = fs ? 'calc(100vh - 28px)' : size.h
 
   return (
     <div style={frameStyle} className="overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.55)] border border-black/50 select-none">
       <style>{`@keyframes termblink{50%{opacity:0}} .term-cursor{display:inline-block;width:.55em;height:1.05em;background:rgba(255,255,255,0.82);transform:translateY(.18em);animation:termblink 1.05s steps(1) infinite} .term-screen::-webkit-scrollbar{width:12px} .term-screen::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.18);border-radius:12px}`}</style>
       {/* resize handles */}
-      {!fullscreen && (
+      {!fs && (
         <>
           <div onMouseDown={startResize('n')}  style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 6, cursor: 'ns-resize', zIndex: 60 }} />
           <div onMouseDown={startResize('s')}  style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 6, cursor: 'ns-resize', zIndex: 60 }} />
@@ -1266,7 +1268,7 @@ function TerminalWindow({ onClose, onMinimize }: { onClose: () => void; onMinimi
       {/* title bar (drag handle) */}
       <div
         onMouseDown={startDrag}
-        className={`relative flex items-center h-7 px-3 bg-gradient-to-b from-[#3b3b3b] to-[#2b2b2b] ${fullscreen ? '' : 'cursor-grab active:cursor-grabbing'}`}
+        className={`relative flex items-center h-7 px-3 bg-gradient-to-b from-[#3b3b3b] to-[#2b2b2b] ${fs ? '' : 'cursor-grab active:cursor-grabbing'}`}
       >
         <div className="flex items-center gap-2 group">
           {/* red — close */}
