@@ -123,8 +123,14 @@ function NowPlaying({ open, playing, elapsed, duration, onToggle, onSeek }: {
   onSeek: (frac: number) => void
 }) {
   const barRef = useRef<HTMLDivElement>(null)
+  const isMobile = useIsMobile()
   if (!open) return null
   const pct = duration > 0 ? Math.min(100, (elapsed / duration) * 100) : 0
+  // On mobile the menu-bar button sits near the right edge, so anchor the card
+  // to the viewport (fixed, full-width minus margins) instead of the button.
+  const posStyle: React.CSSProperties = isMobile
+    ? { position: 'fixed', top: 39, left: 12, right: 12, width: 'auto', zIndex: 80 }
+    : { position: 'absolute', top: 'calc(100% + 9px)', left: 0, width: 320, zIndex: 80 }
   const seek = (e: React.MouseEvent) => {
     const el = barRef.current
     if (!el) return
@@ -138,7 +144,7 @@ function NowPlaying({ open, playing, elapsed, duration, onToggle, onSeek }: {
   return (
     <div
       style={{
-        position: 'absolute', top: 'calc(100% + 9px)', left: 0, width: 'min(320px, calc(100vw - 24px))', zIndex: 80,
+        ...posStyle,
         borderRadius: 16, padding: 13,
         display: 'flex', alignItems: 'center', gap: 12,
         background: 'rgba(28,28,30,0.9)',
@@ -2126,7 +2132,8 @@ export default function App() {
           />
         ) : null}
 
-        {!isMobile && (
+        {/* Desktop: dock always shows. Mobile: only when the window is exed out. */}
+        {(!isMobile || !windowOpen) && (
           <Dock
             running={windowOpen}
             minimized={windowOpen && minimized}
