@@ -1516,6 +1516,11 @@ function ClaudeChatViewRestaurants() {
               <li>Yvonnes, Boston</li>
               <li>1928 Beacon Hill, Boston</li>
               <li>Springbone / Joe &amp; the Juice (for quick &amp; healthy), NY/Boston</li>
+              <li>Monkey Bar, NY</li>
+              <li>Casa Cruz, NY</li>
+              <li>Theodora, NY</li>
+              <li>Kimbal Farms (ice cream), Westford, MA</li>
+              <li>Mēdüzā, NY</li>
             </ul>
           </div>
 
