@@ -705,15 +705,116 @@ function ContributionGraph() {
   )
 }
 
+// ─── Interactive terminal (virtual filesystem + zsh-like shell) ───────────────
+type FSNode =
+  | { type: 'dir'; children: Record<string, FSNode> }
+  | { type: 'file'; content: string }
+
+type TermLine = { html: string; cls?: 'cmdline' | 'dim' }
+
+const TERM_USER = 'smeradhananjaya'
+const TERM_HOST = 'MacBook-Pro'
+const TERM_SYM = '%'
+
+const TERM_BOW = `⠀⢀⠀⢀⡠⢤⣤⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⢠⣯⠄⠀⠈⠉⠉⠙⢖⢄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⠤⠴⠦⠤⣀⠀
+⠘⣧⣄⠀⡀⠀⠀⠀⠀⠉⠪⠢⡀⠀⠀⠀⠀⠀⠀⣀⠤⠂⠀⠀⠀⠀⠀⠀⠈⡆
+⠀⣟⢋⠀⠀⠀⠀⠀⠀⠠⠀⢄⡘⣴⠶⣶⣶⣶⡋⡁⠀⠀⡀⠀⠀⠀⠀⠀⢀⡇
+⠀⣟⠂⠀⠀⠀⠀⠐⠓⠊⢁⢈⣹⡟⣺⣸⣷⠿⠖⠂⠀⠀⠁⠀⠀⠀⠀⢄⣾⠀
+⠀⡟⠀⠀⠀⠀⢀⣠⣴⣿⣿⣿⣿⣿⡿⣿⣿⣿⣿⡶⣶⣶⣄⡀⠀⠀⠀⠹⡏⠀
+⠀⣿⡂⢀⣴⣿⠟⠙⠉⢙⣿⣿⢫⠋⠀⠘⡿⡌⠻⢟⠙⠛⠿⢿⣿⣄⠀⢀⠇⠀
+⠀⠘⢵⣾⣛⣁⡴⠔⠚⣡⣿⡿⠏⠀⠀⠀⢰⡿⡄⠀⠈⠒⢤⣈⡽⢿⣷⠞⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⣰⢿⢻⡽⠀⠀⠀⠀⢸⡞⠛⡄⠀⠀⠀⠀⠈⠉⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⡰⠉⠜⢡⠁⠀⠀⠀⠀⠀⣇⡀⠙⢆⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢰⠁⡈⠄⡼⠀⠀⠀⠀⠀⠀⠘⣄⠀⠈⢆⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢸⡟⠀⠠⡇⠀⠀⠀⠀⠀⠀⠀⠈⢆⠀⢾⡀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢸⡁⠀⠀⡇⠀⠀⠀⠀⠀⠀⠀⠀⢘⠀⢼⠇⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠈⣇⠀⠀⢻⠀⠀⠀⠀⠀⠀⠀⠀⢸⢿⡜⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢀⡏⢀⠀⡏⠀⠀⠀⠀⠀⠀⠀⠀⣿⡿⠁⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢸⡁⠀⡜⠀⠀⠀⠀⠀⠀⠀⠀⠀⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢛⡿⡸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠘⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀`
+
+const TERM_WELCOME = 'Welcome back, Smera 💝'
+
+function termEsc(s: string) {
+  return String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c] as string))
+}
+function termDir(s: string) { return `<span style="color:#ffe9a8;font-weight:700">${s}</span>` }
+function termPathLabel(cwd: string[]) { return cwd.length ? '~/' + cwd.join('/') : '~' }
+function termPrompt(cwd: string[]) { return `${TERM_USER}@${TERM_HOST} ${termPathLabel(cwd)} ${TERM_SYM}` }
+
+function makeTermFS(): FSNode {
+  return {
+    type: 'dir',
+    children: {
+      projects: { type: 'dir', children: {
+        'claude-ui': { type: 'dir', children: {
+          'README.md': { type: 'file', content: 'A pixel-perfect Claude.ai clone built with React + Vite.' },
+        } },
+        gnxl: { type: 'dir', children: {
+          'about.txt': { type: 'file', content: 'STEM education nonprofit. https://www.gnxl.org' },
+        } },
+      } },
+      notes: { type: 'dir', children: {
+        'todo.txt': { type: 'file', content: '- water the plants\n- ship the site\n- be nice to yourself' },
+      } },
+      'about.txt': { type: 'file', content: 'Smera Dhananjaya 💝\nCS @ Northeastern · STEM education advocate\nbuilding w/ intention' },
+    },
+  }
+}
+
+function termResolve(target: string, cwd: string[]) {
+  const fromRoot = target.startsWith('/') || target.startsWith('~')
+  const parts = target.replace(/^~\/?/, '').split('/').filter(Boolean)
+  const base = fromRoot ? [] : cwd.slice()
+  for (const p of parts) {
+    if (p === '.') continue
+    else if (p === '..') { if (base.length) base.pop() }
+    else base.push(p)
+  }
+  return base
+}
+function termNodeAt(root: FSNode, pathArr: string[]): FSNode | null {
+  let node: FSNode = root
+  for (const seg of pathArr) {
+    if (node.type !== 'dir' || !node.children[seg]) return null
+    node = node.children[seg]
+  }
+  return node
+}
+
+function termBanner(): TermLine[] {
+  return [
+    { html: `<div style="display:flex;align-items:center;gap:1.25em;flex-wrap:nowrap"><pre style="margin:0;line-height:1.15;color:rgba(255,255,255,0.94);flex:none">${termEsc(TERM_BOW)}</pre><div style="flex:1;min-width:0">${termEsc(TERM_WELCOME)}</div></div>` },
+    { html: `<span style="color:rgba(255,255,255,0.72)">type </span>${termDir('help')}<span style="color:rgba(255,255,255,0.72)"> to see what you can do.</span>` },
+  ]
+}
+
 function TerminalWindow({ onClose }: { onClose: () => void }) {
-  const W = 520                       // windowed width
-  const IMG_W = 1130, IMG_H = 576     // natural image size
-  const cropPct = 0                   // image has no baked-in title bar
-  const contentH = Math.round(W * IMG_H / IMG_W)
+  const W = 580                       // windowed width
+  const SCREEN_H = 360                // windowed terminal height
+
+  const MIN_W = 320                   // smallest the window can shrink to
+  const MIN_H = 160                   // smallest screen (content) height
 
   const [pos, setPos] = useState({ x: window.innerWidth / 2 - W / 2, y: 140 })
+  const [size, setSize] = useState({ w: W, h: SCREEN_H })
   const [dragging, setDragging] = useState(false)
+  const [resizing, setResizing] = useState(false)
+  const [fullscreen, setFullscreen] = useState(false)
   const offset = useRef({ x: 0, y: 0 })
+  const resizeRef = useRef({ dir: '', startX: 0, startY: 0, startW: 0, startH: 0, startLeft: 0, startTop: 0 })
+
+  const fsRef = useRef<FSNode>(makeTermFS())
+  const historyRef = useRef<string[]>([])
+  const histIdxRef = useRef(0)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  const [cwd, setCwd] = useState<string[]>([])
+  const [lines, setLines] = useState<TermLine[]>(() => termBanner())
+  const [input, setInput] = useState('')
 
   useEffect(() => {
     if (!dragging) return
@@ -727,41 +828,274 @@ function TerminalWindow({ onClose }: { onClose: () => void }) {
     }
   }, [dragging])
 
+  useEffect(() => {
+    if (!resizing) return
+    const move = (e: MouseEvent) => {
+      const r = resizeRef.current
+      const dx = e.clientX - r.startX
+      const dy = e.clientY - r.startY
+      let w = r.startW, h = r.startH, x = r.startLeft, y = r.startTop
+      if (r.dir.includes('e')) w = Math.max(MIN_W, r.startW + dx)
+      if (r.dir.includes('s')) h = Math.max(MIN_H, r.startH + dy)
+      if (r.dir.includes('w')) { w = Math.max(MIN_W, r.startW - dx); x = r.startLeft + (r.startW - w) }
+      if (r.dir.includes('n')) { h = Math.max(MIN_H, r.startH - dy); y = r.startTop + (r.startH - h) }
+      setSize({ w, h })
+      setPos({ x, y })
+    }
+    const up = () => setResizing(false)
+    window.addEventListener('mousemove', move)
+    window.addEventListener('mouseup', up)
+    return () => {
+      window.removeEventListener('mousemove', move)
+      window.removeEventListener('mouseup', up)
+    }
+  }, [resizing])
+
+  useEffect(() => { inputRef.current?.focus() }, [])
+  useEffect(() => { if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight }, [lines])
+
   const startDrag = (e: React.MouseEvent) => {
+    if (fullscreen) return
     offset.current = { x: e.clientX - pos.x, y: e.clientY - pos.y }
     setDragging(true)
   }
 
-  const frameStyle: React.CSSProperties = { position: 'fixed', left: pos.x, top: pos.y, width: W, borderRadius: 12, zIndex: 50 }
+  const startResize = (dir: string) => (e: React.MouseEvent) => {
+    if (fullscreen) return
+    e.preventDefault()
+    e.stopPropagation()
+    resizeRef.current = { dir, startX: e.clientX, startY: e.clientY, startW: size.w, startH: size.h, startLeft: pos.x, startTop: pos.y }
+    setResizing(true)
+  }
+
+  function runCommand(raw: string) {
+    const root = fsRef.current
+    let curCwd = cwd
+    const out: TermLine[] = [{ html: termEsc(termPrompt(cwd) + ' ' + raw), cls: 'cmdline' }]
+    const print = (html: string, cls?: TermLine['cls']) => out.push({ html, cls })
+    const printText = (t: string, cls?: TermLine['cls']) => print(termEsc(t), cls)
+    const trimmed = raw.trim()
+
+    if (trimmed === 'clear') {
+      historyRef.current.push(trimmed)
+      histIdxRef.current = historyRef.current.length
+      setLines([])
+      setInput('')
+      return
+    }
+
+    if (trimmed) {
+      historyRef.current.push(trimmed)
+      const [name, ...args] = trimmed.split(/\s+/)
+      switch (name) {
+        case 'help':
+          print([
+            'available commands',
+            `  ${termDir('ls')} [path]      list what's here`,
+            `  ${termDir('cd')} &lt;dir&gt;      move into a folder ( cd .. to go up )`,
+            `  ${termDir('pwd')}           where am i?`,
+            `  ${termDir('mkdir')} &lt;name&gt;  make a new folder`,
+            `  ${termDir('touch')} &lt;name&gt;  make a new file`,
+            `  ${termDir('cat')} &lt;file&gt;     read a file`,
+            `  ${termDir('rm')} &lt;name&gt;       delete a file or folder`,
+            `  ${termDir('tree')}          show everything as a tree`,
+            `  ${termDir('echo')} &lt;text&gt;    print text`,
+            `  ${termDir('date')}          today's date`,
+            `  ${termDir('bow')}           redraw the bow ♡`,
+            `  ${termDir('clear')}         clear the screen`,
+          ].join('\n'))
+          break
+        case 'ls': {
+          const node = termNodeAt(root, args[0] ? termResolve(args[0], curCwd) : curCwd)
+          if (!node) { printText(`ls: ${args[0]}: No such file or directory`); break }
+          if (node.type === 'file') { printText(args[0]); break }
+          const names = Object.keys(node.children).sort()
+          if (names.length) print(names.map(n => node.children[n].type === 'dir' ? termDir(termEsc(n) + '/') : termEsc(n)).join('   '))
+          break
+        }
+        case 'cd': {
+          if (!args[0] || args[0] === '~') { curCwd = []; break }
+          const target = termResolve(args[0], curCwd)
+          const node = termNodeAt(root, target)
+          if (!node) { printText(`cd: no such file or directory: ${args[0]}`); break }
+          if (node.type !== 'dir') { printText(`cd: not a directory: ${args[0]}`); break }
+          curCwd = target
+          break
+        }
+        case 'pwd':
+          printText('/Users/' + TERM_USER + (curCwd.length ? '/' + curCwd.join('/') : ''))
+          break
+        case 'mkdir': {
+          if (!args[0]) { printText('mkdir: missing operand'); break }
+          const full = termResolve(args[0], curCwd)
+          const pnode = termNodeAt(root, full.slice(0, -1))
+          const nm = full[full.length - 1]
+          if (!pnode || pnode.type !== 'dir') { printText(`mkdir: ${args[0]}: No such file or directory`); break }
+          if (pnode.children[nm]) { printText(`mkdir: ${nm}: File exists`); break }
+          pnode.children[nm] = { type: 'dir', children: {} }
+          break
+        }
+        case 'touch': {
+          if (!args[0]) { printText('touch: missing file operand'); break }
+          const full = termResolve(args[0], curCwd)
+          const pnode = termNodeAt(root, full.slice(0, -1))
+          const nm = full[full.length - 1]
+          if (!pnode || pnode.type !== 'dir') { printText(`touch: ${args[0]}: No such file or directory`); break }
+          if (!pnode.children[nm]) pnode.children[nm] = { type: 'file', content: '' }
+          break
+        }
+        case 'cat': {
+          if (!args[0]) { printText('cat: missing file operand'); break }
+          const node = termNodeAt(root, termResolve(args[0], curCwd))
+          if (!node) { printText(`cat: ${args[0]}: No such file or directory`); break }
+          if (node.type === 'dir') { printText(`cat: ${args[0]}: Is a directory`); break }
+          printText(node.content || '')
+          break
+        }
+        case 'rm': {
+          if (!args[0]) { printText('rm: missing operand'); break }
+          const full = termResolve(args[0], curCwd)
+          const pnode = termNodeAt(root, full.slice(0, -1))
+          const nm = full[full.length - 1]
+          if (!pnode || pnode.type !== 'dir' || !pnode.children[nm]) { printText(`rm: ${args[0]}: No such file or directory`); break }
+          delete pnode.children[nm]
+          break
+        }
+        case 'echo':
+          printText(args.join(' '))
+          break
+        case 'tree': {
+          const start = termNodeAt(root, curCwd)
+          const treeLines = [termDir(termEsc(termPathLabel(curCwd)))]
+          const walk = (node: FSNode, prefix: string) => {
+            if (node.type !== 'dir') return
+            const names = Object.keys(node.children).sort()
+            names.forEach((n, i) => {
+              const last = i === names.length - 1
+              const child = node.children[n]
+              const label = child.type === 'dir' ? termDir(termEsc(n) + '/') : termEsc(n)
+              treeLines.push(termEsc(prefix) + (last ? '└── ' : '├── ') + label)
+              if (child.type === 'dir') walk(child, prefix + (last ? '    ' : '│   '))
+            })
+          }
+          if (start) walk(start, '')
+          print(treeLines.join('\n'))
+          break
+        }
+        case 'date':
+          printText(new Date().toString())
+          break
+        case 'bow':
+          out.push(...termBanner())
+          break
+        default:
+          printText(`zsh: command not found: ${name}`)
+      }
+    }
+
+    histIdxRef.current = historyRef.current.length
+    if (curCwd !== cwd) setCwd(curCwd)
+    setLines(prev => [...prev, ...out])
+    setInput('')
+  }
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter') {
+      runCommand(input)
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      if (histIdxRef.current > 0) { histIdxRef.current--; setInput(historyRef.current[histIdxRef.current]) }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      if (histIdxRef.current < historyRef.current.length - 1) { histIdxRef.current++; setInput(historyRef.current[histIdxRef.current]) }
+      else { histIdxRef.current = historyRef.current.length; setInput('') }
+    } else if (e.key === 'Tab') {
+      e.preventDefault()
+      const parts = input.split(/\s+/)
+      const frag = parts[parts.length - 1]
+      const here = termNodeAt(fsRef.current, cwd)
+      if (!frag || !here || here.type !== 'dir') return
+      const matches = Object.keys(here.children).filter(n => n.startsWith(frag))
+      if (matches.length === 1) {
+        const node = here.children[matches[0]]
+        parts[parts.length - 1] = matches[0] + (node.type === 'dir' ? '/' : '')
+        setInput(parts.join(' '))
+      } else if (matches.length > 1) {
+        setLines(prev => [...prev, { html: termEsc(matches.join('   ')), cls: 'dim' }])
+      }
+    }
+  }
+
+  const frameStyle: React.CSSProperties = fullscreen
+    ? { position: 'fixed', inset: 0, width: '100%', height: '100%', borderRadius: 0, zIndex: 50 }
+    : { position: 'fixed', left: pos.x, top: pos.y, width: size.w, borderRadius: 12, zIndex: 50 }
+  const screenHeight = fullscreen ? 'calc(100vh - 28px)' : size.h
 
   return (
     <div style={frameStyle} className="overflow-hidden shadow-[0_24px_60px_rgba(0,0,0,0.55)] border border-black/50 select-none">
+      <style>{`@keyframes termblink{50%{opacity:0}} .term-cursor{display:inline-block;width:.55em;height:1.05em;background:rgba(255,255,255,0.82);transform:translateY(.18em);animation:termblink 1.05s steps(1) infinite} .term-screen::-webkit-scrollbar{width:12px} .term-screen::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.18);border-radius:12px}`}</style>
+      {/* resize handles */}
+      {!fullscreen && (
+        <>
+          <div onMouseDown={startResize('n')}  style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 6, cursor: 'ns-resize', zIndex: 60 }} />
+          <div onMouseDown={startResize('s')}  style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 6, cursor: 'ns-resize', zIndex: 60 }} />
+          <div onMouseDown={startResize('e')}  style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: 6, cursor: 'ew-resize', zIndex: 60 }} />
+          <div onMouseDown={startResize('w')}  style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: 6, cursor: 'ew-resize', zIndex: 60 }} />
+          <div onMouseDown={startResize('nw')} style={{ position: 'absolute', top: 0, left: 0, width: 14, height: 14, cursor: 'nwse-resize', zIndex: 61 }} />
+          <div onMouseDown={startResize('ne')} style={{ position: 'absolute', top: 0, right: 0, width: 14, height: 14, cursor: 'nesw-resize', zIndex: 61 }} />
+          <div onMouseDown={startResize('sw')} style={{ position: 'absolute', bottom: 0, left: 0, width: 14, height: 14, cursor: 'nesw-resize', zIndex: 61 }} />
+          <div onMouseDown={startResize('se')} style={{ position: 'absolute', bottom: 0, right: 0, width: 14, height: 14, cursor: 'nwse-resize', zIndex: 61 }} />
+        </>
+      )}
       {/* title bar (drag handle) */}
       <div
         onMouseDown={startDrag}
-        className="relative flex items-center h-7 px-3 bg-gradient-to-b from-[#3b3b3b] to-[#2b2b2b] cursor-grab active:cursor-grabbing"
+        className={`relative flex items-center h-7 px-3 bg-gradient-to-b from-[#3b3b3b] to-[#2b2b2b] ${fullscreen ? '' : 'cursor-grab active:cursor-grabbing'}`}
       >
         <div className="flex items-center gap-2 group">
           {/* red — close */}
           <button onClick={onClose} aria-label="Close" className="w-3 h-3 rounded-full bg-[#ff5f57] hover:bg-[#ff4036] flex items-center justify-center">
             <X size={8} strokeWidth={3} className="text-black/60 opacity-0 group-hover:opacity-100" />
           </button>
-          {/* yellow — hide (same as close) */}
+          {/* yellow — close */}
           <button onClick={onClose} aria-label="Hide" className="w-3 h-3 rounded-full bg-[#febc2e] hover:bg-[#f5a623] flex items-center justify-center">
             <span className="block w-1.5 h-[1.5px] bg-black/60 opacity-0 group-hover:opacity-100" />
           </button>
-          {/* green — inactive */}
-          <span className="w-3 h-3 rounded-full bg-[#28c840]" />
+          {/* green — fullscreen toggle */}
+          <button onClick={() => setFullscreen(f => !f)} aria-label="Fullscreen" className="w-3 h-3 rounded-full bg-[#28c840] hover:bg-[#1eb135] flex items-center justify-center">
+            <span className="block w-[5px] h-[5px] border-l-2 border-b-2 border-black/60 opacity-0 group-hover:opacity-100 rotate-45" />
+          </button>
         </div>
         <span className="absolute left-1/2 -translate-x-1/2 text-[12px] text-[#c9c9c4] font-medium pointer-events-none">smeradhananjaya — -zsh</span>
       </div>
-      {/* terminal content */}
-      <div style={{ height: contentH, overflow: 'hidden', background: '#ff3ff0' }}>
-        <img
-          src="/terminal.png?v=8"
-          alt="Terminal"
-          style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain', marginTop: `-${cropPct}%` }}
-        />
+      {/* terminal screen */}
+      <div
+        ref={scrollRef}
+        onMouseDown={() => { if (!window.getSelection()?.toString()) setTimeout(() => inputRef.current?.focus(), 0) }}
+        className="term-screen"
+        style={{ height: screenHeight, overflowY: 'auto', background: '#ff14c8', color: '#fff', padding: '14px 16px 16px', font: '14px/1.45 Menlo, Monaco, "SF Mono", Consolas, monospace', cursor: 'text' }}
+      >
+        {lines.map((l, i) => (
+          <div
+            key={i}
+            style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', marginTop: l.cls === 'cmdline' ? '0.7em' : undefined, color: l.cls === 'dim' ? 'rgba(255,255,255,0.72)' : undefined }}
+            dangerouslySetInnerHTML={{ __html: l.html }}
+          />
+        ))}
+        <div style={{ marginTop: '0.7em', display: 'flex', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+          <span style={{ whiteSpace: 'pre' }}>{termPrompt(cwd)}</span>
+          <span style={{ marginLeft: '1ch', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{input}</span>
+          <span className="term-cursor" aria-hidden="true" />
+          <input
+            ref={inputRef}
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={onKeyDown}
+            autoComplete="off" autoCapitalize="off" spellCheck={false}
+            aria-label="terminal input"
+            style={{ position: 'absolute', opacity: 0, width: 1, height: 1, left: -9999, padding: 0, border: 0 }}
+          />
+        </div>
       </div>
     </div>
   )
