@@ -340,6 +340,7 @@ function BookmarksBar() {
 // ─── Claude Sidebar ───────────────────────────────────────────────────────────
 
 const RECENTS = [
+  'Principles I live by',
   'Marathon Training Plan',
   'Book Recommendations',
   'Restaurant Recommendations',
@@ -412,7 +413,8 @@ function ClaudeSidebar({ onNavigate }: { onNavigate: (view: string) => void }) {
               key={i}
               onClick={() => {
                 setActiveRecent(i)
-                if (chat === 'Marathon Training Plan') onNavigate('marathon')
+                if (chat === 'Principles I live by') onNavigate('principles')
+                else if (chat === 'Marathon Training Plan') onNavigate('marathon')
                 else if (chat === 'Book Recommendations') onNavigate('books')
                 else if (chat === 'Restaurant Recommendations') onNavigate('restaurants')
               }}
@@ -1554,9 +1556,112 @@ function ClaudeChatViewRestaurants() {
   )
 }
 
+function ClaudeChatViewPrinciples() {
+  const principles = [
+    { title: 'Consistency is the only differentiator long term', body: "the people who pull ahead aren't the most talented, they're the ones who refuse to stop showing up." },
+    { title: 'Lead with kindness', body: "it's the starting position with everyone, not a reward people have to unlock." },
+    { title: 'Strive for the greatest net positive impact', body: 'zoom out. not "what\'s in it for me" but "does this leave things better than I found them."' },
+    { title: 'Positive delta: creation over consumption', body: "make more than you take. build stuff, ship stuff, instead of just scrolling past everyone else's." },
+    { title: "Agency. Don't let life happen to you", body: "grab the wheel. you decide, you don't drift." },
+  ]
+  const followups = ['yes. next', 'keep going', 'and?', 'last one']
+
+  return (
+    <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-1.5 px-6 py-3 flex-shrink-0">
+        <span className="text-[15px] text-[#cfcfca]">Principles I live by</span>
+      </div>
+
+      {/* Conversation */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-[720px] mx-auto px-6 pt-4 pb-40">
+          {/* User message */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[15px] text-[#ececec]">
+              ok be honest, what are the five things I actually live by?
+            </div>
+          </div>
+
+          {/* Thinking line */}
+          <button className="flex items-center gap-1.5 mb-4 text-[13px] text-[#8a8a85] hover:text-[#aaa] transition-colors">
+            <span>Recalled your five principles</span>
+            <ChevronRight size={14} />
+          </button>
+
+          {/* Assistant — intro + first principle */}
+          <div className="font-lora text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3">I've got these down by now. one at a time, here we go.</p>
+            <p className="font-semibold mb-1">{principles[0].title}</p>
+            <p>{principles[0].body}</p>
+          </div>
+
+          {/* Remaining principles, each prompted by a short follow-up */}
+          {principles.slice(1).map((p, i) => (
+            <React.Fragment key={p.title}>
+              <div className="flex justify-end mb-6">
+                <div className="max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[15px] text-[#ececec]">
+                  {followups[i]}
+                </div>
+              </div>
+              <div className="font-lora text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+                <p className="font-semibold mb-1">{p.title}</p>
+                <p>{p.body}</p>
+              </div>
+            </React.Fragment>
+          ))}
+
+          {/* Closing exchange */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[15px] text-[#ececec]">
+              nailed it
+            </div>
+          </div>
+          <div className="font-lora text-[16px] leading-relaxed text-[#ece9e2]">
+            <p>you make it easy, you've only told me like a hundred times</p>
+          </div>
+
+          {/* Action row */}
+          <div className="flex items-center gap-1 mt-3 text-[#8a8a85]">
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Copy size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Play size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><ThumbsUp size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><ThumbsDown size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><RotateCw size={16} /></button>
+          </div>
+
+          {/* Claude asterisk */}
+          <div className="mt-4">
+            <ClaudeAsterisk size={36} color="#c96442" />
+          </div>
+        </div>
+      </div>
+
+      {/* Composer */}
+      <div className="flex-shrink-0 px-6 pb-3">
+        <div className="relative max-w-[720px] mx-auto">
+          {/* scroll-to-bottom button */}
+          <button className="absolute -top-12 left-1/2 -translate-x-1/2 w-9 h-9 rounded-full bg-[#2a2a28] border border-[#3a3a38] flex items-center justify-center text-[#cfcfca] hover:bg-[#34332f] shadow-lg transition-colors">
+            <ChevronDown size={18} />
+          </button>
+
+          <div className="rounded-2xl bg-[#252525] border border-[#34342f] shadow-xl">
+            <div className="px-4 py-3.5">
+              <span className="text-[15px] text-[#6a6a66]">Words to live by</span>
+            </div>
+          </div>
+
+          <p className="text-center text-[11px] text-[#5a5a56] mt-2.5">Claude is AI and can make mistakes. Please double-check responses.</p>
+        </div>
+      </div>
+    </main>
+  )
+}
+
 function ClaudeChatsView({ onNavigate }: { onNavigate: (v: string) => void }) {
   const chats = [
     { title: 'Who am I?', time: '2 minutes ago', view: 'whoami' },
+    { title: 'Principles I live by', time: '8 minutes ago', view: 'principles' },
     { title: 'Marathon Training Plan', time: '27 minutes ago', view: 'marathon' },
     { title: 'Book Recommendations', time: '45 minutes ago', view: 'books' },
     { title: 'Restaurant Recommendations', time: '3 hours ago', view: 'restaurants' },
@@ -1752,6 +1857,7 @@ export default function App() {
         {view === 'code' && <ClaudeCodeView />}
         {view === 'marathon' && <ClaudeChatView />}
         {view === 'chats' && <ClaudeChatsView onNavigate={setView} />}
+        {view === 'principles' && <ClaudeChatViewPrinciples />}
         {view === 'whoami' && <ClaudeChatViewWhoAmI />}
         {view === 'books' && <ClaudeChatViewBooks />}
         {view === 'restaurants' && <ClaudeChatViewRestaurants />}
