@@ -85,12 +85,141 @@ function Favicon({ bg, text, textColor = '#fff', size = 14 }: { bg: string; text
   )
 }
 
+// ─── Now Playing widget ───────────────────────────────────────────────────────
+
+const NP_TRACK = {
+  title: 'Three Little Birds',
+  artist: 'Bob Marley & The Wailers',
+  album: 'Legend - The Best of Bob Marley & The Wailers',
+  cover: '/legend-bob-marley.jpeg',
+  duration: 180,
+}
+
+function fmtTime(s: number) {
+  const m = Math.floor(s / 60)
+  const sec = Math.floor(s % 60)
+  return `${m}:${sec.toString().padStart(2, '0')}`
+}
+
+function NowPlaying({ open, playing, elapsed, duration, onToggle, onSeek }: {
+  open: boolean
+  playing: boolean
+  elapsed: number
+  duration: number
+  onToggle: () => void
+  onSeek: (frac: number) => void
+}) {
+  const barRef = useRef<HTMLDivElement>(null)
+  if (!open) return null
+  const pct = duration > 0 ? Math.min(100, (elapsed / duration) * 100) : 0
+  const seek = (e: React.MouseEvent) => {
+    const el = barRef.current
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    onSeek(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)))
+  }
+  const ctrlBtn: React.CSSProperties = {
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    border: 'none', background: 'transparent', color: 'rgba(225,225,228,0.92)', cursor: 'pointer', padding: 0,
+  }
+  return (
+    <div
+      style={{
+        position: 'absolute', top: 'calc(100% + 9px)', left: 0, width: 320, zIndex: 80,
+        borderRadius: 16, padding: 13,
+        display: 'flex', alignItems: 'center', gap: 12,
+        background: 'rgba(28,28,30,0.9)',
+        backdropFilter: 'blur(40px) saturate(1.8)',
+        WebkitBackdropFilter: 'blur(40px) saturate(1.8)',
+        border: '0.5px solid rgba(255,255,255,0.12)',
+        boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
+        color: '#fff', cursor: 'default',
+      }}
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      {/* Album art */}
+      <img
+        src={NP_TRACK.cover}
+        alt={NP_TRACK.album}
+        draggable={false}
+        style={{ width: 62, height: 62, borderRadius: 9, objectFit: 'cover', flexShrink: 0, boxShadow: '0 6px 16px rgba(0,0,0,0.45)' }}
+      />
+      {/* Info + controls */}
+      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 13.5, fontWeight: 700, letterSpacing: '.1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {NP_TRACK.title}
+          </div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: 1 }}>
+            {NP_TRACK.artist}
+          </div>
+        </div>
+        {/* Progress */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <div
+            ref={barRef}
+            onClick={seek}
+            style={{ position: 'relative', height: 3.5, borderRadius: 4, background: 'rgba(255,255,255,0.2)', cursor: 'pointer' }}
+          >
+            <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${pct}%`, borderRadius: 4, background: '#fff' }} />
+            <div style={{ position: 'absolute', left: `${pct}%`, top: '50%', width: 9, height: 9, borderRadius: '50%', background: '#fff', transform: 'translate(-50%,-50%)', boxShadow: '0 1px 4px rgba(0,0,0,0.4)' }} />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9.5, color: 'rgba(255,255,255,0.5)', fontVariantNumeric: 'tabular-nums' }}>
+            <span>{fmtTime(elapsed)}</span>
+            <span>{fmtTime(duration)}</span>
+          </div>
+        </div>
+        {/* Controls */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 26, marginTop: 1 }}>
+          <button style={ctrlBtn} aria-label="Rewind">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11 6v12l-8.5-6zM21 6v12l-8.5-6z"/></svg>
+          </button>
+          <button style={ctrlBtn} onClick={onToggle} aria-label={playing ? 'Pause' : 'Play'}>
+            {playing
+              ? <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+              : <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5l11 7-11 7z"/></svg>}
+          </button>
+          <button style={ctrlBtn} aria-label="Fast forward">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 6v12l8.5-6zM13 6v12l8.5-6z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── macOS Menu Bar ───────────────────────────────────────────────────────────
 
 const IC: React.CSSProperties = { display:'flex', alignItems:'center', justifyContent:'center', color:'#fff' }
 
 function MacMenuBar() {
   const clock = useClockTime()
+  const audioRef = useRef<HTMLAudioElement>(null)
+  const [npOpen, setNpOpen] = useState(false)
+  const [npPlaying, setNpPlaying] = useState(false)
+  const [npElapsed, setNpElapsed] = useState(0)
+  const [npDuration, setNpDuration] = useState(NP_TRACK.duration)
+  const togglePlay = () => {
+    const a = audioRef.current
+    if (!a) return
+    if (a.paused) { a.play(); setNpPlaying(true) }
+    else { a.pause(); setNpPlaying(false) }
+  }
+  const openWidget = () => {
+    setNpOpen((o) => {
+      const next = !o
+      const a = audioRef.current
+      if (next && a && a.paused) { a.play(); setNpPlaying(true) }
+      return next
+    })
+  }
+  const seekTo = (frac: number) => {
+    const a = audioRef.current
+    const dur = a?.duration || npDuration
+    const t = frac * dur
+    if (a) a.currentTime = t
+    setNpElapsed(t)
+  }
   return (
     <div style={{
       flexShrink: 0, height: 30, zIndex: 50, overflow: 'visible',
@@ -109,11 +238,35 @@ function MacMenuBar() {
       {/* Right */}
       <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:15 }}>
         {/* Media play */}
-        <span style={IC}>
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7">
-            <circle cx="12" cy="12" r="9"/>
-            <path d="M10 8.5l6 3.5-6 3.5z" fill="#fff" stroke="none"/>
-          </svg>
+        <span style={{ ...IC, position: 'relative' }}>
+          <button
+            onClick={openWidget}
+            aria-label="Now Playing"
+            style={{ ...IC, border: 'none', background: 'transparent', padding: 0, cursor: 'pointer' }}
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M10 8.5l6 3.5-6 3.5z" fill="#fff" stroke="none"/>
+            </svg>
+          </button>
+          <audio
+            ref={audioRef}
+            src="/three-little-birds.mp3"
+            preload="metadata"
+            onLoadedMetadata={(e) => setNpDuration(e.currentTarget.duration)}
+            onTimeUpdate={(e) => setNpElapsed(e.currentTarget.currentTime)}
+            onPlay={() => setNpPlaying(true)}
+            onPause={() => setNpPlaying(false)}
+            onEnded={() => setNpPlaying(false)}
+          />
+          <NowPlaying
+            open={npOpen}
+            playing={npPlaying}
+            elapsed={npElapsed}
+            duration={npDuration}
+            onToggle={togglePlay}
+            onSeek={seekTo}
+          />
         </span>
         {/* A box (input source) */}
         <span style={{ width:21, height:18, borderRadius:5, background:'#f2f2f2', color:'#1d1d1f',
