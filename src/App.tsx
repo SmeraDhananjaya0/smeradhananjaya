@@ -1007,7 +1007,7 @@ function termBanner(): TermLine[] {
   ]
 }
 
-function TerminalWindow({ onClose }: { onClose: () => void }) {
+function TerminalWindow({ onClose, onMinimize }: { onClose: () => void; onMinimize: () => void }) {
   const W = Math.min(580, window.innerWidth - 24)   // windowed width (clamped to viewport)
   const SCREEN_H = 360                // windowed terminal height
 
@@ -1273,8 +1273,8 @@ function TerminalWindow({ onClose }: { onClose: () => void }) {
           <button onClick={onClose} aria-label="Close" className="w-3 h-3 rounded-full bg-[#ff5f57] hover:bg-[#ff4036] flex items-center justify-center">
             <X size={8} strokeWidth={3} className="text-black/60 opacity-0 group-hover:opacity-100" />
           </button>
-          {/* yellow — close */}
-          <button onClick={onClose} aria-label="Hide" className="w-3 h-3 rounded-full bg-[#febc2e] hover:bg-[#f5a623] flex items-center justify-center">
+          {/* yellow — minimize to dock */}
+          <button onClick={onMinimize} aria-label="Minimize" className="w-3 h-3 rounded-full bg-[#febc2e] hover:bg-[#f5a623] flex items-center justify-center">
             <span className="block w-1.5 h-[1.5px] bg-black/60 opacity-0 group-hover:opacity-100" />
           </button>
           {/* green — fullscreen toggle */}
@@ -1317,10 +1317,9 @@ function TerminalWindow({ onClose }: { onClose: () => void }) {
   )
 }
 
-function ClaudeCodeView() {
-  const [showTerminal, setShowTerminal] = useState(false)
+function ClaudeCodeView({ onOpenTerminal }: { onOpenTerminal: () => void }) {
   const tools: { icon: React.ReactNode; label: string; href: string; onClick?: () => void }[] = [
-    { icon: <Terminal size={15} />,             label: 'Terminal', href: '', onClick: () => setShowTerminal(true) },
+    { icon: <Terminal size={15} />,             label: 'Terminal', href: '', onClick: onOpenTerminal },
     { icon: <CursorIcon size={15} />,           label: 'Cursor',   href: 'https://cursor.com/get-started?utm_source=google_paid&utm_campaign=[Search]%20[Brand]%20[EN]%20[Core%20T1]%20[Broad]%20[VBB]%20Brand&utm_term=cursor&utm_medium=paid&utm_content=798404224783&cc_platform=google&cc_campaignid=23656700841&cc_adgroupid=195242436478&cc_adid=798404224783&cc_keyword=cursor&cc_matchtype=b&cc_device=c&cc_network=g&cc_placement=&cc_location=9061285&cc_adposition=&gad_source=1&gad_campaignid=23656700841&gbraid=0AAAABAkdGgQ0YcfP9_Nkmzgn9gbLVwy2s&gclid=CjwKCAjwxb7RBhA5EiwAQ-AAdJIYUcT6t7fwlwMMmchAW_EzQwkAaiAZMlEXTWxnXTgJY6EW68hVyxoCYdoQAvD_BwE' },
     { icon: <ClaudeAsterisk size={15} color="#d97757" />, label: 'Claude', href: 'https://claude.com/product/claude-code' },
     { icon: <SupabaseIcon size={15} />,         label: 'Supabase', href: 'https://supabase.com/' },
@@ -1359,9 +1358,6 @@ function ClaudeCodeView() {
         </div>
 
       </div>
-
-      {/* Terminal window */}
-      {showTerminal && <TerminalWindow onClose={() => setShowTerminal(false)} />}
     </main>
   )
 }
@@ -1924,7 +1920,7 @@ function ChromeLogo({ size = 40 }: { size?: number }) {
   return <img src="/chrome-icon.png" width={size} height={size} alt="Google Chrome" draggable={false} style={{ display: 'block' }} />
 }
 
-function Dock({ running, minimized, onOpenChrome, onRestore }: { running: boolean; minimized: boolean; onOpenChrome: () => void; onRestore: () => void }) {
+function Dock({ running, minimized, onOpenChrome, onRestore, onOpenTerminal, terminalRunning, terminalMinimized, onRestoreTerminal }: { running: boolean; minimized: boolean; onOpenChrome: () => void; onRestore: () => void; onOpenTerminal: () => void; terminalRunning: boolean; terminalMinimized: boolean; onRestoreTerminal: () => void }) {
   return (
     <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', zIndex: 60 }}>
       <div style={{
@@ -1950,25 +1946,58 @@ function Dock({ running, minimized, onOpenChrome, onRestore }: { running: boolea
           <span style={{ width: 3.5, height: 3.5, borderRadius: '50%', background: running ? 'rgba(255,255,255,0.92)' : 'transparent' }} />
         </button>
 
-        {/* Minimized window — appears to the right, past a divider, only when minimized */}
+        {/* Terminal app */}
+        <button
+          onClick={onOpenTerminal}
+          title="Terminal"
+          aria-label="Terminal"
+          className="group"
+          style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}
+        >
+          <span
+            className="transition-transform duration-150 group-hover:-translate-y-1 group-hover:scale-105"
+            style={{ width: 48, height: 48, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 3px 8px rgba(0,0,0,0.18)', overflow: 'hidden' }}
+          >
+            <img src="/terminal-icon.png" width={48} height={48} alt="Terminal" draggable={false} style={{ display: 'block', width: 48, height: 48, objectFit: 'cover' }} />
+          </span>
+          <span style={{ width: 3.5, height: 3.5, borderRadius: '50%', background: terminalRunning ? 'rgba(255,255,255,0.92)' : 'transparent' }} />
+        </button>
+
+        {/* Minimized windows — appear to the right, past a divider */}
+        {(minimized || terminalMinimized) && (
+          <span style={{ width: 1, height: 38, background: 'rgba(255,255,255,0.32)', margin: '0 2px' }} />
+        )}
         {minimized && (
-          <>
-            <span style={{ width: 1, height: 38, background: 'rgba(255,255,255,0.32)', margin: '0 2px' }} />
-            <button
-              onClick={onRestore}
-              title="Claude — Google Chrome"
-              aria-label="Restore window"
-              className="group"
-              style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}
+          <button
+            onClick={onRestore}
+            title="Claude — Google Chrome"
+            aria-label="Restore window"
+            className="group"
+            style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}
+          >
+            <span
+              className="transition-transform duration-150 group-hover:-translate-y-1 group-hover:scale-105"
+              style={{ width: 44, height: 44, borderRadius: 11, background: '#1a1a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 3px 8px rgba(0,0,0,0.18)' }}
             >
-              <span
-                className="transition-transform duration-150 group-hover:-translate-y-1 group-hover:scale-105"
-                style={{ width: 44, height: 44, borderRadius: 11, background: '#1a1a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 3px 8px rgba(0,0,0,0.18)' }}
-              >
-                <svg width="24" height="24" viewBox="0 0 100 100"><path d={CLAUDE_SYMBOL_PATH} fill="#d97757" /></svg>
-              </span>
-            </button>
-          </>
+              <svg width="24" height="24" viewBox="0 0 100 100"><path d={CLAUDE_SYMBOL_PATH} fill="#d97757" /></svg>
+            </span>
+          </button>
+        )}
+        {terminalMinimized && (
+          <button
+            onClick={onRestoreTerminal}
+            title="Terminal — -zsh"
+            aria-label="Restore terminal"
+            className="group"
+            style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}
+          >
+            <span
+              className="transition-transform duration-150 group-hover:-translate-y-1 group-hover:scale-105"
+              style={{ width: 48, height: 48, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 3px 8px rgba(0,0,0,0.18)', overflow: 'hidden' }}
+            >
+              <img src="/terminal-icon.png" width={48} height={48} alt="Terminal" draggable={false} style={{ display: 'block', width: 48, height: 48, objectFit: 'cover' }} />
+            </span>
+          </button>
         )}
       </div>
     </div>
@@ -1982,6 +2011,9 @@ export default function App() {
   const [maximized, setMaximized] = useState(false)
   const isMobile = useIsMobile()
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [showTerminal, setShowTerminal] = useState(false)
+  const [terminalMinimized, setTerminalMinimized] = useState(false)
+  const openTerminal = () => { setShowTerminal(true); setTerminalMinimized(false) }
   const fullScreen = maximized || isMobile
 
   // Floating-window geometry (coords relative to the desktop area below the menu bar).
@@ -1992,7 +2024,7 @@ export default function App() {
   const initW = Math.round(window.innerWidth * 0.94)
   const initH = Math.min(Math.round(window.innerHeight * 0.90), maxBottom() - 14)
   const [winSize, setWinSize] = useState({ w: initW, h: initH })
-  const [winPos, setWinPos] = useState({ x: Math.round((window.innerWidth - initW) / 2), y: 14 })
+  const [winPos, setWinPos] = useState({ x: Math.round((window.innerWidth - initW) / 2), y: 6 })
   const [resizing, setResizing] = useState(false)
   const [dragging, setDragging] = useState(false)
   const resizeRef = useRef({ dir: '', startX: 0, startY: 0, startW: 0, startH: 0, startLeft: 0, startTop: 0 })
@@ -2077,7 +2109,7 @@ export default function App() {
       <div className="flex flex-1 overflow-hidden bg-[#1a1a1a]">
         <ClaudeSidebar onNavigate={navigate} isMobile={isMobile} open={drawerOpen} onClose={() => setDrawerOpen(false)} />
         {view === 'home' && <ClaudeHomeView />}
-        {view === 'code' && <ClaudeCodeView />}
+        {view === 'code' && <ClaudeCodeView onOpenTerminal={openTerminal} />}
         {view === 'marathon' && <ClaudeChatView />}
         {view === 'chats' && <ClaudeChatsView onNavigate={navigate} />}
         {view === 'principles' && <ClaudeChatViewPrinciples />}
@@ -2132,13 +2164,25 @@ export default function App() {
           />
         ) : null}
 
-        {/* Desktop: dock always shows. Mobile: only when the window is exed out. */}
-        {(!isMobile || !windowOpen) && (
+        {/* Desktop: dock always shows. Mobile: only when the window is exed out
+            (or a terminal is minimized and needs restoring). */}
+        {(!isMobile || !windowOpen || (showTerminal && terminalMinimized)) && (
           <Dock
             running={windowOpen}
             minimized={windowOpen && minimized}
             onOpenChrome={() => { setMinimized(false); setWindowOpen(true) }}
             onRestore={() => { setMinimized(false); setWindowOpen(true) }}
+            onOpenTerminal={openTerminal}
+            terminalRunning={showTerminal}
+            terminalMinimized={showTerminal && terminalMinimized}
+            onRestoreTerminal={() => setTerminalMinimized(false)}
+          />
+        )}
+
+        {showTerminal && !terminalMinimized && (
+          <TerminalWindow
+            onClose={() => { setShowTerminal(false); setTerminalMinimized(false) }}
+            onMinimize={() => setTerminalMinimized(true)}
           />
         )}
       </div>
