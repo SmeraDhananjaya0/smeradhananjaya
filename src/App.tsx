@@ -615,6 +615,16 @@ function FilesCarousel() {
   const prev = () => setIdx(i => (i - 1 + items.length) % items.length)
   const next = () => setIdx(i => (i + 1) % items.length)
 
+  // Browsers throttle/pause muted autoplay videos that aren't fully visible
+  // (the peeking neighbors), and autoPlay won't re-fire when they re-center.
+  // Explicitly (re)start playback so every video keeps looping.
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([])
+  useEffect(() => {
+    videoRefs.current.forEach((v) => {
+      if (v) { const p = v.play(); if (p) p.catch(() => {}) }
+    })
+  }, [idx])
+
   // Peek carousel: active slide centered, neighbors peeking on both sides.
   const SLIDE = 84 // % width of each slide
   const offset = 50 - SLIDE / 2 - idx * SLIDE // center the active slide
@@ -641,11 +651,13 @@ function FilesCarousel() {
                 <div className="relative aspect-video rounded-xl overflow-hidden bg-black border border-[#2d2d2a]">
                   {item.type === 'video' ? (
                     <video
+                      ref={(el) => { videoRefs.current[i] = el }}
                       src={item.src}
                       autoPlay
                       muted
                       loop
                       playsInline
+                      preload="auto"
                       className="absolute inset-0 w-full h-full object-cover"
                     />
                   ) : (
