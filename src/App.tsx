@@ -2152,10 +2152,14 @@ export default function App() {
   const DOCK_RESERVED = 70             // vertical space the dock occupies at the bottom
   const MIN_W = 520, MIN_H = 380
   const maxBottom = () => window.innerHeight - MENUBAR_H - DOCK_RESERVED  // window bottom can't pass this
-  const initW = Math.round(window.innerWidth * 0.94)
-  const initH = Math.min(Math.round(window.innerHeight * 0.90), maxBottom() - 14)
-  const [winSize, setWinSize] = useState({ w: initW, h: initH })
-  const [winPos, setWinPos] = useState({ x: Math.round((window.innerWidth - initW) / 2), y: 6 })
+  // Proportional geometry that keeps the whole mock window inside the viewport.
+  const defaultGeom = () => {
+    const w = Math.max(MIN_W, Math.round(window.innerWidth * 0.94))
+    const h = Math.max(MIN_H, Math.min(Math.round(window.innerHeight * 0.90), maxBottom() - 14))
+    return { w, h, x: Math.round((window.innerWidth - w) / 2), y: 6 }
+  }
+  const [winSize, setWinSize] = useState(() => { const g = defaultGeom(); return { w: g.w, h: g.h } })
+  const [winPos, setWinPos] = useState(() => { const g = defaultGeom(); return { x: g.x, y: g.y } })
   const [resizing, setResizing] = useState(false)
   const [dragging, setDragging] = useState(false)
   const resizeRef = useRef({ dir: '', startX: 0, startY: 0, startW: 0, startH: 0, startLeft: 0, startTop: 0 })
@@ -2205,6 +2209,18 @@ export default function App() {
       window.removeEventListener('mouseup', up)
     }
   }, [dragging, winSize])
+
+  // Keep the floating window fitted to the viewport as the browser is resized.
+  useEffect(() => {
+    if (maximized || isMobile) return  // full-screen branch fills the viewport on its own
+    const onResize = () => {
+      const g = defaultGeom()
+      setWinSize({ w: g.w, h: g.h })
+      setWinPos({ x: g.x, y: g.y })
+    }
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [maximized, isMobile])
 
   const startResize = (dir: string) => (e: React.MouseEvent) => {
     e.preventDefault()
