@@ -2341,15 +2341,9 @@ export default function App() {
               {resizeHandles}
             </div>
           )
-        ) : !windowOpen && !isMobile ? (
-          // Screensaver (desktop): wallpaper shows through; click anywhere to reopen.
-          // On mobile, reopen only via the dock's Chrome icon, so no click target here.
-          <button
-            onClick={() => setWindowOpen(true)}
-            aria-label="Open window"
-            className="absolute inset-0 w-full h-full cursor-default"
-          />
         ) : null}
+        {/* When the window is closed the wallpaper shows through. Reopening is only
+            possible via the dock's Chrome icon — clicking the wallpaper does nothing. */}
 
         {/* Desktop: dock always shows. Mobile: only when the window is exed out
             (or a terminal is minimized and needs restoring). */}
