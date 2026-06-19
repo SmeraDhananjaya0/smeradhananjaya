@@ -2058,9 +2058,8 @@ function ChromeLogo({ size = 40 }: { size?: number }) {
 
 function Dock({ running, minimized, onOpenChrome, onRestore, onOpenTerminal, terminalRunning, terminalMinimized, onRestoreTerminal }: { running: boolean; minimized: boolean; onOpenChrome: () => void; onRestore: () => void; onOpenTerminal: () => void; terminalRunning: boolean; terminalMinimized: boolean; onRestoreTerminal: () => void }) {
   const isMobile = useIsMobile()
-  // On mobile the 100vh canvas extends behind the browser's bottom toolbar, so lift
-  // the dock above it (plus the safe-area inset) instead of pinning it 8px from bottom.
-  const bottom = isMobile ? 'calc(env(safe-area-inset-bottom, 0px) + 24px)' : 8
+  // Clear the phone's home indicator / safe area so the dock stays fully visible.
+  const bottom = isMobile ? 'calc(env(safe-area-inset-bottom, 0px) + 14px)' : 8
   return (
     <div style={{ position: 'absolute', bottom, left: '50%', transform: 'translateX(-50%)', zIndex: 60 }}>
       <div style={{
@@ -2317,8 +2316,8 @@ export default function App() {
 
   return (
     <div
-      className="flex flex-col h-screen w-screen overflow-hidden bg-cover bg-center"
-      style={{ backgroundImage: 'url(/sequoia-sunrise.jpeg)' }}
+      className="flex flex-col w-screen overflow-hidden bg-cover bg-center"
+      style={{ backgroundImage: 'url(/sequoia-sunrise.jpeg)', height: '100dvh' }}
     >
       <MacMenuBar />
 
