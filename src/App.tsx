@@ -642,7 +642,7 @@ function FilesCarousel() {
                   {item.type === 'video' ? (
                     <video
                       src={item.src}
-                      autoPlay={isActive}
+                      autoPlay
                       muted
                       loop
                       playsInline
