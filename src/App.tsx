@@ -601,6 +601,15 @@ function YouTubeGlyph({ size = 16 }: { size?: number }) {
   )
 }
 
+function GitHubGlyph({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" className="flex-shrink-0">
+      <circle cx="12" cy="12" r="11" fill="#fff" />
+      <path fill="#181717" d="M12 4.5a7.5 7.5 0 0 0-2.37 14.62c.38.07.5-.16.5-.36v-1.3c-2.08.45-2.52-1-2.52-1-.34-.87-.83-1.1-.83-1.1-.68-.46.05-.46.05-.46.75.06 1.15.78 1.15.78.67 1.15 1.76.82 2.19.63.07-.49.26-.82.47-1.01-1.66-.19-3.4-.83-3.4-3.7 0-.82.29-1.49.78-2.01-.08-.19-.34-.96.07-2 0 0 .63-.2 2.07.77a7.2 7.2 0 0 1 3.77 0c1.44-.97 2.07-.77 2.07-.77.41 1.04.15 1.81.07 2 .49.52.78 1.19.78 2.01 0 2.88-1.75 3.51-3.42 3.69.27.23.5.68.5 1.38v2.05c0 .2.13.43.51.36A7.5 7.5 0 0 0 12 4.5Z" />
+    </svg>
+  )
+}
+
 function GenxlGlyph({ size = 16 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
@@ -2313,6 +2322,105 @@ function ClaudeChatViewGenxl() {
   )
 }
 
+function ClaudeChatViewHowThisWorks() {
+  return (
+    <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-1.5 px-4 md:px-6 py-3 flex-shrink-0">
+        <span className="text-[15px] text-[#cfcfca]">How this Works..</span>
+      </div>
+
+      {/* Conversation */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-4 pb-40">
+          {/* User message */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              wait, how is this whole site even built?
+            </div>
+          </div>
+
+          {/* Assistant */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">It's one big illusion — and it's all in the browser.</span> What looks like a macOS desktop is actually a single React app. The wallpaper, menu bar, dock, and that floating window are all just HTML and CSS pretending to be an operating system.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              and the window with the tabs?
+            </div>
+          </div>
+
+          {/* Assistant */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p><span className="font-semibold">That's a fake Chrome running a fake Claude.ai.</span> The traffic lights, the tab strip, the omnibox — all recreated by hand. Inside it, Claude's sidebar and chats are where I actually keep my content: who I am, my principles, marathon training, books, restaurants, projects like this one.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              what's it built with?
+            </div>
+          </div>
+
+          {/* Assistant */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p><span className="font-semibold">React + TypeScript + Vite, styled with Tailwind.</span> Lucide for icons, a couple of hand-drawn SVGs for the brand logos. No backend — it's a fully static site. The desktop window is draggable and resizable, and the whole thing collapses to a clean full-screen layout on mobile.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              can I see the code?
+            </div>
+          </div>
+
+          {/* Assistant */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p>Of course — it's{' '}
+              <a
+                href="https://github.com/SmeraDhananjaya0/smeradhananjaya"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#c96442] underline decoration-[#c96442]/40 underline-offset-2 hover:decoration-[#c96442]"
+              >
+                open sourced
+              </a>. Poke around, fork it, build your own desktop-in-a-browser.</p>
+          </div>
+
+          {/* Action row */}
+          <div className="flex items-center gap-1 mt-3 text-[#8a8a85]">
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Copy size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Play size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><ThumbsUp size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><ThumbsDown size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><RotateCw size={16} /></button>
+          </div>
+
+          {/* Claude asterisk */}
+          <div className="mt-4">
+            <ClaudeAsterisk size={36} color="#c96442" />
+          </div>
+        </div>
+      </div>
+
+      {/* Composer */}
+      <div className="flex-shrink-0 px-6 pb-3">
+        <div className="relative max-w-[720px] mx-auto">
+          <div className="rounded-2xl bg-[#252525] border border-[#34342f] shadow-xl">
+            <div className="px-4 py-3.5 flex items-center gap-2">
+              <ClaudeAsterisk size={16} color="#c96442" />
+              <span className="text-[15px] text-[#c96442]">Razzmatazzing…</span>
+            </div>
+          </div>
+          <p className="text-center text-[11px] text-[#5a5a56] mt-2.5">Claude is AI and can make mistakes. Please double-check responses.</p>
+        </div>
+      </div>
+    </main>
+  )
+}
+
 function ClaudeChatsView({ onNavigate }: { onNavigate: (v: string) => void }) {
   const chats = [
     { title: 'Who am I?', time: '2 minutes ago', view: 'whoami' },
@@ -2362,6 +2470,7 @@ function ClaudeChatsView({ onNavigate }: { onNavigate: (v: string) => void }) {
 function ClaudeProjectsView({ onNavigate }: { onNavigate: (v: string) => void }) {
   const projects = [
     { name: 'Genxl', desc: 'STEM for everyone!', updated: 'Updated just now', view: 'project-genxl' },
+    { name: 'Personal Website', desc: 'Open Sourced', updated: 'Updated just now', view: 'project-personal' },
   ]
   return (
     <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
@@ -2495,6 +2604,107 @@ function ClaudeProjectGenxlView({ onNavigate }: { onNavigate: (v: string) => voi
   )
 }
 
+function ClaudeProjectPersonalView({ onNavigate }: { onNavigate: (v: string) => void }) {
+  return (
+    <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-[1080px] mx-auto px-4 md:px-8 pt-8 pb-20">
+          {/* Back link */}
+          <button
+            onClick={() => onNavigate('projects')}
+            className="flex items-center gap-1.5 mb-6 text-[13px] text-[#9a9a95] hover:text-[#cfcfca] transition-colors"
+          >
+            <ArrowLeft size={15} />
+            <span>All projects</span>
+          </button>
+
+          {/* Title row */}
+          <div className="flex items-start justify-between gap-4 mb-6">
+            <div>
+              <h1 className="font-lora text-[30px] text-[#ece9e2] mb-1">Personal Website</h1>
+              <a
+                href="https://github.com/SmeraDhananjaya0/smeradhananjaya"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[14px] text-[#c96442] hover:underline"
+              >
+                Open Sourced
+              </a>
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0 text-[#9a9a95]">
+              <button className="p-2 rounded-lg hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Star size={18} /></button>
+              <button className="p-2 rounded-lg hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><MoreHorizontal size={18} /></button>
+            </div>
+          </div>
+
+          {/* Two-column layout */}
+          <div className="flex flex-col lg:flex-row gap-5">
+            {/* Left: composer */}
+            <div className="flex-1 min-w-0">
+              {/* Composer */}
+              <div className="rounded-2xl bg-[#252525] border border-[#34342f] shadow-xl mb-6">
+                <div className="px-4 pt-4 pb-2">
+                  <span className="text-[15px] text-[#6a6a66]">Learn More!</span>
+                </div>
+                <div className="flex items-center justify-end px-3 pb-3">
+                  <ModelSelector openUp={false} alignRight />
+                </div>
+              </div>
+
+              {/* Chat list */}
+              <div>
+                <button
+                  onClick={() => onNavigate('howthisworks')}
+                  className="flex items-center justify-between w-full px-3 py-3.5 text-left border-b border-[#262624] hover:bg-[#222220] transition-colors"
+                >
+                  <span className="text-[14px] text-[#d4d2cc]">How this Works..</span>
+                  <span className="text-[13px] text-[#6a6a66] flex-shrink-0 ml-4">Last message just now</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Right: unified panel */}
+            <div className="lg:w-[400px] flex-shrink-0">
+              <div className="rounded-2xl bg-[#202020] border border-[#2d2d2a] overflow-hidden">
+                {/* Instructions */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[14px] font-medium text-[#ece9e2]">Instructions</span>
+                    <button className="p-1 rounded-md text-[#9a9a95] hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Plus size={16} /></button>
+                  </div>
+                  <p className="text-[13px] leading-relaxed text-[#6a6a66]">Add instructions to tailor Claude's responses in this project.</p>
+                </div>
+
+                <div className="h-px bg-[#2d2d2a]" />
+
+                {/* Files */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[14px] font-medium text-[#ece9e2]">Files</span>
+                    <button className="p-1 rounded-md text-[#9a9a95] hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Plus size={16} /></button>
+                  </div>
+                  <a
+                    href="https://github.com/SmeraDhananjaya0/smeradhananjaya"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group block rounded-xl overflow-hidden bg-black border border-[#2d2d2a]"
+                  >
+                    <div className="relative aspect-video">
+                      <img src="/github-repo.png" alt="GitHub repository" className="absolute inset-0 w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors" />
+                      <span className="absolute top-2 left-2"><GitHubGlyph size={16} /></span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  )
+}
+
 function ChromeLogo({ size = 40 }: { size?: number }) {
   return <img src="/chrome-icon.png" width={size} height={size} alt="Google Chrome" draggable={false} style={{ display: 'block' }} />
 }
@@ -2586,7 +2796,7 @@ function Dock({ running, minimized, onOpenChrome, onRestore, onOpenTerminal, ter
   )
 }
 
-const VALID_VIEWS = ['home', 'code', 'marathon', 'chats', 'projects', 'project-genxl', 'principles', 'favthings', 'genxl', 'whoami', 'books', 'restaurants']
+const VALID_VIEWS = ['home', 'code', 'marathon', 'chats', 'projects', 'project-genxl', 'project-personal', 'principles', 'favthings', 'genxl', 'howthisworks', 'whoami', 'books', 'restaurants']
 // Read the current destination from the URL hash (e.g. "#view=favthings&terminal=1").
 function readUrlState() {
   const p = new URLSearchParams(window.location.hash.replace(/^#/, ''))
@@ -2737,6 +2947,8 @@ export default function App() {
         {view === 'chats' && <ClaudeChatsView onNavigate={navigate} />}
         {view === 'projects' && <ClaudeProjectsView onNavigate={navigate} />}
         {view === 'project-genxl' && <ClaudeProjectGenxlView onNavigate={navigate} />}
+        {view === 'project-personal' && <ClaudeProjectPersonalView onNavigate={navigate} />}
+        {view === 'howthisworks' && <ClaudeChatViewHowThisWorks />}
         {view === 'principles' && <ClaudeChatViewPrinciples />}
         {view === 'favthings' && <ClaudeChatViewFavThings />}
         {view === 'genxl' && <ClaudeChatViewGenxl />}
