@@ -5,7 +5,8 @@ import {
   X, Pen, GraduationCap, Coffee,
   Activity, ArrowUpDown, Bell, Ghost,
   Check, Info, ChevronRight, Terminal,
-  Copy, Play, ThumbsUp, ThumbsDown, RotateCw
+  Copy, Play, ThumbsUp, ThumbsDown, RotateCw,
+  Search, ArrowLeft, Star, MoreHorizontal, ChevronLeft
 } from 'lucide-react'
 
 // ─── SVG Primitives ──────────────────────────────────────────────────────────
@@ -558,6 +559,144 @@ function ProjectsIcon({ size = 14 }: { size?: number }) {
   )
 }
 
+// Instagram camera glyph with gradient stroke.
+function InstagramGlyph({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
+      <defs>
+        <linearGradient id="ig-grad" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0%" stopColor="#feda75" />
+          <stop offset="25%" stopColor="#fa7e1e" />
+          <stop offset="50%" stopColor="#d62976" />
+          <stop offset="75%" stopColor="#962fbf" />
+          <stop offset="100%" stopColor="#4f5bd5" />
+        </linearGradient>
+      </defs>
+      <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" stroke="url(#ig-grad)" strokeWidth="2" />
+      <circle cx="12" cy="12" r="4.5" stroke="url(#ig-grad)" strokeWidth="2" />
+      <circle cx="17.5" cy="6.5" r="1.3" fill="url(#ig-grad)" />
+    </svg>
+  )
+}
+
+// CBS eye glyph.
+function CBSGlyph({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" className="flex-shrink-0">
+      <circle cx="12" cy="12" r="11" fill="#fff" />
+      <ellipse cx="12" cy="12" rx="9.5" ry="5.5" fill="#0a2a5e" />
+      <circle cx="12" cy="12" r="3.4" fill="#fff" />
+      <circle cx="12" cy="12" r="1.7" fill="#0a2a5e" />
+    </svg>
+  )
+}
+
+// YouTube glyph.
+function YouTubeGlyph({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
+      <rect x="2" y="5" width="20" height="14" rx="4" fill="#FF0000" />
+      <path d="M10 8.5l5 3.5-5 3.5z" fill="#fff" />
+    </svg>
+  )
+}
+
+function FilesCarousel() {
+  const items = [
+    { href: 'https://www.cbsnews.com/boston/video/acton-boxboro-students-establish-genxl-which-offers-free-stem-education/', src: '/genxl-cbs.mp4', type: 'video', glyph: <CBSGlyph size={16} /> },
+    { href: 'https://www.instagram.com/p/CxCD35ZR-Sy/?img_index=1', src: '/genxl-instagram.mp4', type: 'video', glyph: <InstagramGlyph size={16} /> },
+    { href: 'https://www.youtube.com/watch?v=TnRerRXlQak', src: '/genxl-intro-2021.mp4', type: 'video', glyph: <YouTubeGlyph size={16} /> },
+    { href: 'https://www.instagram.com/p/C16FW-6OLlk/?img_index=1', src: '/genxl-ghana.jpeg', type: 'image', glyph: <InstagramGlyph size={16} /> },
+    { href: 'https://www.instagram.com/p/CyWdaNiROnl/?img_index=1', src: '/genxl-thailand.jpeg', type: 'image', glyph: <InstagramGlyph size={16} /> },
+    { href: 'https://www.instagram.com/p/CxCGvEaxnZO/?img_index=1', src: '/genxl-ghana-2.jpeg', type: 'image', glyph: <InstagramGlyph size={16} /> },
+    { href: 'https://www.instagram.com/p/CviBTk4xz0S/?img_index=1', src: '/genxl-india.jpeg', type: 'image', glyph: <InstagramGlyph size={16} /> },
+  ]
+  const [idx, setIdx] = useState(0)
+  const prev = () => setIdx(i => (i - 1 + items.length) % items.length)
+  const next = () => setIdx(i => (i + 1) % items.length)
+
+  // Peek carousel: active slide centered, neighbors peeking on both sides.
+  const SLIDE = 84 // % width of each slide
+  const offset = 50 - SLIDE / 2 - idx * SLIDE // center the active slide
+
+  return (
+    <div className="relative">
+      <div className="overflow-hidden">
+        <div
+          className="flex transition-transform duration-300 ease-out"
+          style={{ transform: `translateX(${offset}%)` }}
+        >
+          {items.map((item, i) => {
+            const isActive = i === idx
+            return (
+              <a
+                key={item.href}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => { if (!isActive) { e.preventDefault(); setIdx(i) } }}
+                style={{ flex: `0 0 ${SLIDE}%` }}
+                className={`group block px-1.5 transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-40 hover:opacity-70'}`}
+              >
+                <div className="relative aspect-video rounded-xl overflow-hidden bg-black border border-[#2d2d2a]">
+                  {item.type === 'video' ? (
+                    <video
+                      src={item.src}
+                      autoPlay={isActive}
+                      muted
+                      loop
+                      playsInline
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  ) : (
+                    <img src={item.src} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                  )}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors flex items-center justify-center">
+                    {item.type === 'video' && isActive && (
+                      <div className="w-11 h-11 rounded-full bg-black/45 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Play size={18} className="text-white ml-0.5" fill="currentColor" />
+                      </div>
+                    )}
+                  </div>
+                  <span className="absolute top-2 left-2">{item.glyph}</span>
+                </div>
+              </a>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Arrows */}
+      <button
+        onClick={prev}
+        aria-label="Previous"
+        className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center transition-colors"
+      >
+        <ChevronLeft size={16} />
+      </button>
+      <button
+        onClick={next}
+        aria-label="Next"
+        className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center transition-colors"
+      >
+        <ChevronRight size={16} />
+      </button>
+
+      {/* Dots */}
+      <div className="flex justify-center gap-1.5 mt-2.5">
+        {items.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setIdx(i)}
+            aria-label={`Go to slide ${i + 1}`}
+            className={`h-1.5 rounded-full transition-all ${i === idx ? 'w-4 bg-[#cfcfca]' : 'w-1.5 bg-[#4a4a44] hover:bg-[#6a6a66]'}`}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function ClaudeSidebar({ onNavigate, isMobile = false, open = false, onClose }: { onNavigate: (view: string) => void; isMobile?: boolean; open?: boolean; onClose?: () => void }) {
   const [activeItem, setActiveItem] = useState('New chat')
   const [activeRecent, setActiveRecent] = useState(0)
@@ -565,7 +704,7 @@ function ClaudeSidebar({ onNavigate, isMobile = false, open = false, onClose }: 
   const navItems = [
     { icon: <Plus size={14} />,            label: 'New chat',  view: 'home' },
     { icon: <MessagesSquare size={16} />,  label: 'Chats',     view: 'chats' },
-    { icon: <ProjectsIcon size={16} />,    label: 'Projects',  view: '' },
+    { icon: <ProjectsIcon size={16} />,    label: 'Projects',  view: 'projects' },
   ]
 
   const close = () => { if (isMobile) onClose?.() }
@@ -681,7 +820,7 @@ const MODELS = [
   { name: 'Mark l 17', sub: 'Training Wheels Protocol' },
 ]
 
-function ModelSelector() {
+function ModelSelector({ openUp = true, alignRight = true }: { openUp?: boolean; alignRight?: boolean }) {
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState('Nasty 19')
 
@@ -702,8 +841,8 @@ function ModelSelector() {
           {/* click-away overlay */}
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
 
-          {/* panel — compact, opens upward, right-aligned to the pill; size/height adapt so it never gets cut off */}
-          <div className="absolute bottom-full right-0 mb-2 w-[420px] max-w-[calc(100vw-24px)] max-h-[calc(100vh-110px)] overflow-y-auto z-50 p-1 rounded-xl bg-[#2b2a28] border border-[#3a3a38] shadow-[0_20px_50px_rgba(0,0,0,0.55)]">
+          {/* panel — compact; opens up/down and left/right-aligned so it never gets cut off */}
+          <div className={`absolute ${alignRight ? 'right-0' : 'left-0'} ${openUp ? 'bottom-full mb-2' : 'top-full mt-2'} w-[420px] max-w-[calc(100vw-24px)] max-h-[calc(100vh-110px)] overflow-y-auto z-50 p-1 rounded-xl bg-[#2b2a28] border border-[#3a3a38] shadow-[0_20px_50px_rgba(0,0,0,0.55)]`}>
             {/* Disabled / unavailable */}
             <div className="px-3 py-1.5 rounded-[10px] cursor-default">
               <div className="flex items-center gap-2 whitespace-nowrap">
@@ -2023,9 +2162,138 @@ function ClaudeChatViewFavThings() {
   )
 }
 
+function ClaudeChatViewGenxl() {
+  return (
+    <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-1.5 px-4 md:px-6 py-3 flex-shrink-0">
+        <span className="text-[15px] text-[#cfcfca]">What's Genxl?</span>
+      </div>
+
+      {/* Conversation */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-4 pb-40">
+          {/* User message */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              What does{' '}
+              <a
+                href="https://www.gnxl.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#c96442] underline decoration-[#c96442]/40 underline-offset-2 hover:decoration-[#c96442]"
+              >
+                Genxl
+              </a>{' '}
+              actually do?
+            </div>
+          </div>
+
+          {/* Assistant */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">It's STEM education built by students, for students.</span> Genxl is a 501(c)(3) that empowers young people around the world to create and deliver high-quality STEM education themselves — not adults teaching down to kids, but students teaching across to each other. the whole model assumes young people are capable of running real education, and then proves it.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              tell me more
+            </div>
+          </div>
+
+          {/* Assistant */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p><span className="font-semibold">It runs entirely on youth.</span> 50+ national and international chapters, every single one youth-led. 2,100+ student volunteers keeping it moving.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              keep going
+            </div>
+          </div>
+
+          {/* Assistant */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p><span className="font-semibold">The reach isn't theoretical.</span> 51,500+ students impacted across the globe, backed by 5,000,000+ certified volunteer hours poured into education equity. Those are hours real students gave to other students who needed them.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              and the support behind it?
+            </div>
+          </div>
+
+          {/* Assistant */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p><span className="font-semibold">$7.5M+ in in-kind and sponsorship funding</span> from Google, Meta, Apple, and more, plus working partnerships with Wolfram Technology, MIT Scratch, and other global STEM leaders.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              origin story?
+            </div>
+          </div>
+
+          {/* Assistant */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p><span className="font-semibold">It started with two people who refused to wait their turn.</span> founded in 2021 and led by{' '}
+              <a
+                href="https://www.linkedin.com/in/smera-dhananjaya-b4426721b"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#c96442] underline decoration-[#c96442]/40 underline-offset-2 hover:decoration-[#c96442]"
+              >
+                Smera Dhananjaya
+              </a>{' '}
+              alongside co-founder{' '}
+              <a
+                href="https://www.linkedin.com/in/nikita-mullangi/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#c96442] underline decoration-[#c96442]/40 underline-offset-2 hover:decoration-[#c96442]"
+              >
+                Nikita Mullangi
+              </a>.</p>
+          </div>
+
+          {/* Action row */}
+          <div className="flex items-center gap-1 mt-3 text-[#8a8a85]">
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Copy size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Play size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><ThumbsUp size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><ThumbsDown size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><RotateCw size={16} /></button>
+          </div>
+
+          {/* Claude asterisk */}
+          <div className="mt-4">
+            <ClaudeAsterisk size={36} color="#c96442" />
+          </div>
+        </div>
+      </div>
+
+      {/* Composer */}
+      <div className="flex-shrink-0 px-6 pb-3">
+        <div className="relative max-w-[720px] mx-auto">
+          <div className="rounded-2xl bg-[#252525] border border-[#34342f] shadow-xl">
+            <div className="px-4 py-3.5">
+              <span className="text-[15px] text-[#6a6a66]">Ask about Genxl</span>
+            </div>
+          </div>
+          <p className="text-center text-[11px] text-[#5a5a56] mt-2.5">Claude is AI and can make mistakes. Please double-check responses.</p>
+        </div>
+      </div>
+    </main>
+  )
+}
+
 function ClaudeChatsView({ onNavigate }: { onNavigate: (v: string) => void }) {
   const chats = [
     { title: 'Who am I?', time: '2 minutes ago', view: 'whoami' },
+    { title: "What's Genxl?", time: '4 minutes ago', view: 'genxl' },
     { title: 'Fav Things', time: '5 minutes ago', view: 'favthings' },
     { title: 'Principles I live by', time: '8 minutes ago', view: 'principles' },
     { title: 'Marathon Training Plan', time: '27 minutes ago', view: 'marathon' },
@@ -2061,6 +2329,142 @@ function ClaudeChatsView({ onNavigate }: { onNavigate: (v: string) => void }) {
                 <span className="text-[13px] text-[#6a6a66] flex-shrink-0 ml-4">{c.time}</span>
               </button>
             ))}
+          </div>
+        </div>
+      </div>
+    </main>
+  )
+}
+
+function ClaudeProjectsView({ onNavigate }: { onNavigate: (v: string) => void }) {
+  const projects = [
+    { name: 'Genxl', desc: 'STEM for everyone!', updated: 'Updated just now', view: 'project-genxl' },
+  ]
+  return (
+    <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-[820px] mx-auto px-4 md:px-8 pt-10 pb-20">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-5">
+            <h1 className="font-lora text-[28px] text-[#ece9e2]">Projects</h1>
+            <div className="flex items-center gap-3">
+              <button className="flex items-center gap-1.5 text-[13px] text-[#9a9a95] hover:text-[#cfcfca] transition-colors">
+                <span>Sort by</span>
+                <span className="text-[#cfcfca]">Last updated</span>
+                <ChevronDown size={14} />
+              </button>
+              <button className="px-3 py-1.5 rounded-lg bg-white text-[13px] text-[#1a1a1a] font-medium hover:bg-[#ececec] transition-colors">
+                New project
+              </button>
+            </div>
+          </div>
+
+          {/* Search */}
+          <div className="relative mb-6">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6a6a66]" />
+            <input
+              placeholder="Search projects..."
+              className="w-full rounded-xl bg-[#222220] border border-[#33332f] pl-9 pr-3 py-2.5 text-[14px] text-[#d4d2cc] placeholder:text-[#6a6a66] outline-none focus:border-[#4a4a44]"
+            />
+          </div>
+
+          {/* Project grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {projects.map((p) => (
+              <button
+                key={p.name}
+                onClick={() => onNavigate(p.view)}
+                className="text-left rounded-2xl bg-[#222220] border border-[#2d2d2a] p-4 hover:bg-[#262624] hover:border-[#3a3a36] transition-colors"
+              >
+                <div className="font-lora text-[18px] text-[#ece9e2] mb-1">{p.name}</div>
+                <div className="text-[13px] text-[#9a9a95] mb-8">{p.desc}</div>
+                <div className="text-[12px] text-[#6a6a66]">{p.updated}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </main>
+  )
+}
+
+function ClaudeProjectGenxlView({ onNavigate }: { onNavigate: (v: string) => void }) {
+  return (
+    <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-[1080px] mx-auto px-4 md:px-8 pt-8 pb-20">
+          {/* Back link */}
+          <button
+            onClick={() => onNavigate('projects')}
+            className="flex items-center gap-1.5 mb-6 text-[13px] text-[#9a9a95] hover:text-[#cfcfca] transition-colors"
+          >
+            <ArrowLeft size={15} />
+            <span>All projects</span>
+          </button>
+
+          {/* Title row */}
+          <div className="flex items-start justify-between gap-4 mb-6">
+            <div>
+              <h1 className="font-lora text-[30px] text-[#ece9e2] mb-1">Genxl</h1>
+              <p className="text-[14px] text-[#9a9a95]">STEM for everyone!</p>
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0 text-[#9a9a95]">
+              <button className="p-2 rounded-lg hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Star size={18} /></button>
+              <button className="p-2 rounded-lg hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><MoreHorizontal size={18} /></button>
+            </div>
+          </div>
+
+          {/* Two-column layout */}
+          <div className="flex flex-col lg:flex-row gap-5">
+            {/* Left: composer + chats */}
+            <div className="flex-1 min-w-0">
+              {/* Composer */}
+              <div className="rounded-2xl bg-[#252525] border border-[#34342f] shadow-xl mb-6">
+                <div className="px-4 pt-4 pb-2">
+                  <span className="text-[15px] text-[#6a6a66]">Learn More!</span>
+                </div>
+                <div className="flex items-center justify-end px-3 pb-3">
+                  <ModelSelector openUp={false} alignRight />
+                </div>
+              </div>
+
+              {/* Chat list */}
+              <div>
+                <button
+                  onClick={() => onNavigate('genxl')}
+                  className="flex items-center justify-between w-full px-3 py-3.5 text-left border-b border-[#262624] hover:bg-[#222220] transition-colors"
+                >
+                  <span className="text-[14px] text-[#d4d2cc]">What's Genxl?</span>
+                  <span className="text-[13px] text-[#6a6a66] flex-shrink-0 ml-4">Last message 16 minutes ago</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Right: unified panel */}
+            <div className="lg:w-[400px] flex-shrink-0">
+              <div className="rounded-2xl bg-[#202020] border border-[#2d2d2a] overflow-hidden">
+                {/* Instructions */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[14px] font-medium text-[#ece9e2]">Instructions</span>
+                    <button className="p-1 rounded-md text-[#9a9a95] hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Plus size={16} /></button>
+                  </div>
+                  <p className="text-[13px] leading-relaxed text-[#6a6a66]">Add instructions to tailor Claude's responses in this project.</p>
+                </div>
+
+                <div className="h-px bg-[#2d2d2a]" />
+
+                {/* Files */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[14px] font-medium text-[#ece9e2]">Files</span>
+                    <button className="p-1 rounded-md text-[#9a9a95] hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Plus size={16} /></button>
+                  </div>
+                  {/* Linked videos carousel */}
+                  <FilesCarousel />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -2159,7 +2563,7 @@ function Dock({ running, minimized, onOpenChrome, onRestore, onOpenTerminal, ter
   )
 }
 
-const VALID_VIEWS = ['home', 'code', 'marathon', 'chats', 'principles', 'favthings', 'whoami', 'books', 'restaurants']
+const VALID_VIEWS = ['home', 'code', 'marathon', 'chats', 'projects', 'project-genxl', 'principles', 'favthings', 'genxl', 'whoami', 'books', 'restaurants']
 // Read the current destination from the URL hash (e.g. "#view=favthings&terminal=1").
 function readUrlState() {
   const p = new URLSearchParams(window.location.hash.replace(/^#/, ''))
@@ -2308,8 +2712,11 @@ export default function App() {
         {view === 'code' && <ClaudeCodeView onOpenTerminal={openTerminal} />}
         {view === 'marathon' && <ClaudeChatView />}
         {view === 'chats' && <ClaudeChatsView onNavigate={navigate} />}
+        {view === 'projects' && <ClaudeProjectsView onNavigate={navigate} />}
+        {view === 'project-genxl' && <ClaudeProjectGenxlView onNavigate={navigate} />}
         {view === 'principles' && <ClaudeChatViewPrinciples />}
         {view === 'favthings' && <ClaudeChatViewFavThings />}
+        {view === 'genxl' && <ClaudeChatViewGenxl />}
         {view === 'whoami' && <ClaudeChatViewWhoAmI />}
         {view === 'books' && <ClaudeChatViewBooks />}
         {view === 'restaurants' && <ClaudeChatViewRestaurants />}
