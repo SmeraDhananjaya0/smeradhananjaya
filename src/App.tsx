@@ -541,7 +541,6 @@ function BookmarksBar() {
 
 const RECENTS = [
   'Fav Things',
-  'Principles I live by',
   'Marathon Training Plan',
   'Book Recommendations',
   'Restaurant Recommendations',
@@ -632,7 +631,6 @@ function ClaudeSidebar({ onNavigate, isMobile = false, open = false, onClose }: 
               onClick={() => {
                 setActiveRecent(i)
                 if (chat === 'Fav Things') onNavigate('favthings')
-                else if (chat === 'Principles I live by') onNavigate('principles')
                 else if (chat === 'Marathon Training Plan') onNavigate('marathon')
                 else if (chat === 'Book Recommendations') onNavigate('books')
                 else if (chat === 'Restaurant Recommendations') onNavigate('restaurants')
