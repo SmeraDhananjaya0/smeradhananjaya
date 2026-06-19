@@ -540,6 +540,7 @@ function BookmarksBar() {
 // ─── Claude Sidebar ───────────────────────────────────────────────────────────
 
 const RECENTS = [
+  'Fav Things',
   'Principles I live by',
   'Marathon Training Plan',
   'Book Recommendations',
@@ -623,7 +624,8 @@ function ClaudeSidebar({ onNavigate, isMobile = false, open = false, onClose }: 
               key={i}
               onClick={() => {
                 setActiveRecent(i)
-                if (chat === 'Principles I live by') onNavigate('principles')
+                if (chat === 'Fav Things') onNavigate('favthings')
+                else if (chat === 'Principles I live by') onNavigate('principles')
                 else if (chat === 'Marathon Training Plan') onNavigate('marathon')
                 else if (chat === 'Book Recommendations') onNavigate('books')
                 else if (chat === 'Restaurant Recommendations') onNavigate('restaurants')
@@ -1874,9 +1876,136 @@ function ClaudeChatViewPrinciples() {
   )
 }
 
+function ClaudeChatViewFavThings() {
+  const irl = [
+    { name: 'Asics Gel-Nimbus 28', note: 'clouds for feet. your long-run non-negotiable.' },
+    { name: 'Dyson Airwrap' },
+    { name: 'Bala Bangles' },
+    { name: 'Pink peonies', note: 'fresh ones on the counter = instant good mood.' },
+    { name: 'Owala' },
+    { name: 'Kérastase 8H Magic', note: 'slather it on, wake up to softer hair. witchcraft.' },
+    { name: 'Salomon Active Skin 12 Vest', note: 'carries everything, bounces never. trail-day MVP.' },
+    { name: 'Maurten gels', note: 'the only fuel your stomach forgives mid-race.' },
+    { name: 'Manduka mat' },
+    { name: "Kimball's coffee Heath ice cream", note: 'the post-long-run reward you earn.' },
+    { name: 'Chamomile tea' },
+    { name: 'VIOLETTE_FR Bêtise lip nectar', note: 'your go to every time' },
+    { name: 'Prada Paradox', note: 'your signature scent.' },
+  ]
+  const tabs = [
+    { name: 'Claude 💕', note: 'oh, me 👀' },
+    { name: 'Strava & AllTrails', note: 'where you go to quietly brag.' },
+    { name: 'X' },
+    { name: 'Cursor', note: 'best interface' },
+    { name: 'Spotify' },
+    { name: 'Citrini Research' },
+    { name: 'Supabase' },
+    { name: 'Terminal' },
+    { name: 'Figma' },
+  ]
+
+  return (
+    <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-1.5 px-4 md:px-6 py-3 flex-shrink-0">
+        <span className="text-[15px] text-[#cfcfca]">Fav Things</span>
+      </div>
+
+      {/* Conversation */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-4 pb-40">
+          {/* User message */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              k be honest — what do I actually reach for?
+            </div>
+          </div>
+
+          {/* Thinking line */}
+          <button className="flex items-center gap-1.5 mb-4 text-[13px] text-[#8a8a85] hover:text-[#aaa] transition-colors">
+            <span>Recalled your favorites</span>
+            <ChevronRight size={14} />
+          </button>
+
+          {/* Assistant — In Real Life */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">In Real Life</span> — the stuff that lives in your hands:</p>
+            <ul className="list-disc pl-5 md:pl-6 space-y-1.5">
+              {irl.map((item) => (
+                <li key={item.name}>
+                  <span className="font-semibold">{item.name}</span>{item.note ? `: ${item.note}` : ''}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* User follow-up */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              yes. next
+            </div>
+          </div>
+
+          {/* Assistant — In Your Tabs */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">In Your Tabs</span> — the stuff that earns a permanent open tab:</p>
+            <ul className="list-disc pl-5 md:pl-6 space-y-1.5">
+              {tabs.map((item) => (
+                <li key={item.name}>
+                  <span className="font-semibold">{item.name}</span>{item.note ? `: ${item.note}` : ''}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Closing */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              Wow. S-tier list right there.
+            </div>
+          </div>
+
+          {/* Action row */}
+          <div className="flex items-center gap-1 mt-3 text-[#8a8a85]">
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Copy size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Play size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><ThumbsUp size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><ThumbsDown size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><RotateCw size={16} /></button>
+          </div>
+
+          {/* Claude asterisk */}
+          <div className="mt-4">
+            <ClaudeAsterisk size={36} color="#c96442" />
+          </div>
+        </div>
+      </div>
+
+      {/* Composer */}
+      <div className="flex-shrink-0 px-6 pb-3">
+        <div className="relative max-w-[720px] mx-auto">
+          {/* scroll-to-bottom button */}
+          <button className="absolute -top-12 left-1/2 -translate-x-1/2 w-9 h-9 rounded-full bg-[#2a2a28] border border-[#3a3a38] flex items-center justify-center text-[#cfcfca] hover:bg-[#34332f] shadow-lg transition-colors">
+            <ChevronDown size={18} />
+          </button>
+
+          <div className="rounded-2xl bg-[#252525] border border-[#34342f] shadow-xl">
+            <div className="px-4 py-3.5">
+              <span className="text-[15px] text-[#6a6a66]">A few of my favorite things</span>
+            </div>
+          </div>
+
+          <p className="text-center text-[11px] text-[#5a5a56] mt-2.5">Claude is AI and can make mistakes. Please double-check responses.</p>
+        </div>
+      </div>
+    </main>
+  )
+}
+
 function ClaudeChatsView({ onNavigate }: { onNavigate: (v: string) => void }) {
   const chats = [
     { title: 'Who am I?', time: '2 minutes ago', view: 'whoami' },
+    { title: 'Fav Things', time: '5 minutes ago', view: 'favthings' },
     { title: 'Principles I live by', time: '8 minutes ago', view: 'principles' },
     { title: 'Marathon Training Plan', time: '27 minutes ago', view: 'marathon' },
     { title: 'Book Recommendations', time: '45 minutes ago', view: 'books' },
@@ -2115,6 +2244,7 @@ export default function App() {
         {view === 'marathon' && <ClaudeChatView />}
         {view === 'chats' && <ClaudeChatsView onNavigate={navigate} />}
         {view === 'principles' && <ClaudeChatViewPrinciples />}
+        {view === 'favthings' && <ClaudeChatViewFavThings />}
         {view === 'whoami' && <ClaudeChatViewWhoAmI />}
         {view === 'books' && <ClaudeChatViewBooks />}
         {view === 'restaurants' && <ClaudeChatViewRestaurants />}
