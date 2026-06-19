@@ -1252,7 +1252,7 @@ function TerminalWindow({ onClose, onMinimize }: { onClose: () => void; onMinimi
   }
 
   const frameStyle: React.CSSProperties = fs
-    ? { position: 'fixed', inset: 0, width: '100%', height: '100%', borderRadius: 0, zIndex: 50 }
+    ? { position: 'fixed', inset: 0, width: '100%', height: '100%', borderRadius: 0, zIndex: 100 }
     : { position: 'fixed', left: pos.x, top: pos.y, width: size.w, borderRadius: 12, zIndex: 50 }
   const screenHeight = fs ? 'calc(100vh - 28px)' : size.h
 
@@ -2057,8 +2057,12 @@ function ChromeLogo({ size = 40 }: { size?: number }) {
 }
 
 function Dock({ running, minimized, onOpenChrome, onRestore, onOpenTerminal, terminalRunning, terminalMinimized, onRestoreTerminal }: { running: boolean; minimized: boolean; onOpenChrome: () => void; onRestore: () => void; onOpenTerminal: () => void; terminalRunning: boolean; terminalMinimized: boolean; onRestoreTerminal: () => void }) {
+  const isMobile = useIsMobile()
+  // On mobile the 100vh canvas extends behind the browser's bottom toolbar, so lift
+  // the dock above it (plus the safe-area inset) instead of pinning it 8px from bottom.
+  const bottom = isMobile ? 'calc(env(safe-area-inset-bottom, 0px) + 24px)' : 8
   return (
-    <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', zIndex: 60 }}>
+    <div style={{ position: 'absolute', bottom, left: '50%', transform: 'translateX(-50%)', zIndex: 60 }}>
       <div style={{
         display: 'flex', alignItems: 'center', gap: 6, padding: '4px 8px',
         background: 'rgba(255,255,255,0.16)', border: '1px solid rgba(255,255,255,0.22)',
@@ -2140,17 +2144,42 @@ function Dock({ running, minimized, onOpenChrome, onRestore, onOpenTerminal, ter
   )
 }
 
+const VALID_VIEWS = ['home', 'code', 'marathon', 'chats', 'principles', 'favthings', 'whoami', 'books', 'restaurants']
+// Read the current destination from the URL hash (e.g. "#view=favthings&terminal=1").
+function readUrlState() {
+  const p = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+  const v = p.get('view') || 'home'
+  return { view: VALID_VIEWS.includes(v) ? v : 'home', terminal: p.get('terminal') === '1' }
+}
+
 export default function App() {
-  const [view, setView] = useState('home')
+  const initUrl = readUrlState()
+  const [view, setView] = useState(initUrl.view)
   const [windowOpen, setWindowOpen] = useState(true)
   const [minimized, setMinimized] = useState(false)
   const [maximized, setMaximized] = useState(false)
   const isMobile = useIsMobile()
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const [showTerminal, setShowTerminal] = useState(false)
+  const [showTerminal, setShowTerminal] = useState(initUrl.terminal)
   const [terminalMinimized, setTerminalMinimized] = useState(false)
   const openTerminal = () => { setShowTerminal(true); setTerminalMinimized(false) }
-  const fullScreen = maximized || isMobile
+
+  // Persist the current destination to the URL so it can be copied / restored.
+  useEffect(() => {
+    const p = new URLSearchParams()
+    if (view !== 'home') p.set('view', view)
+    if (showTerminal) p.set('terminal', '1')
+    const q = p.toString()
+    const url = q ? `#${q}` : window.location.pathname + window.location.search
+    window.history.replaceState(null, '', url)
+  }, [view, showTerminal])
+
+  // Respond to manual URL edits / back-forward navigation.
+  useEffect(() => {
+    const onHash = () => { const r = readUrlState(); setView(r.view); setShowTerminal(r.terminal) }
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
 
   // Floating-window geometry (coords relative to the desktop area below the menu bar).
   const MENUBAR_H = 30                 // menu bar height (also the desktop area's top offset)
@@ -2295,7 +2324,12 @@ export default function App() {
 
       <div className="relative flex-1 overflow-hidden">
         {windowOpen && !minimized ? (
-          fullScreen ? (
+          maximized ? (
+            // Green button → true full screen: covers the menu bar and the dock.
+            <div className="fixed inset-0 z-[100] flex flex-col overflow-hidden">
+              {windowChrome}
+            </div>
+          ) : isMobile ? (
             <div className="absolute inset-0 flex flex-col overflow-hidden">
               {windowChrome}
             </div>
