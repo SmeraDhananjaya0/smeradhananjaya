@@ -611,6 +611,13 @@ function ClaudeSidebar({ onNavigate, isMobile = false, open = false, onClose }: 
         >
           <span className="truncate">Who am I?</span>
         </button>
+        <button
+          onClick={() => { setActiveItem('Principles I live by'); onNavigate('principles'); close() }}
+          className={`flex items-center gap-2 w-full px-3 py-1.5 rounded-md text-[12px] transition-colors truncate
+            ${activeItem === 'Principles I live by' ? 'bg-[#2e2e2e] text-[#ddd]' : 'text-[#888] hover:bg-[#242424] hover:text-[#ccc]'}`}
+        >
+          <span className="truncate">Principles I live by</span>
+        </button>
       </div>
 
       {/* Recents */}
