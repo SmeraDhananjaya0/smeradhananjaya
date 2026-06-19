@@ -1892,10 +1892,13 @@ function ClaudeChatViewFavThings() {
     { name: 'Salomon Active Skin 12 Vest', note: 'carries everything, bounces never. trail-day MVP.' },
     { name: 'Maurten gels', note: 'the only fuel your stomach forgives mid-race.' },
     { name: 'Manduka mat' },
-    { name: "Kimball's coffee heath ice cream", note: 'the post-long-run reward you earn.' },
+    { name: "Kimball's coffee heath ice cream" },
     { name: 'Chamomile tea' },
     { name: 'VIOLETTE_FR Bêtise lip nectar', note: 'your go to every time' },
     { name: 'Prada Paradox', note: 'your signature scent.' },
+    { name: 'Sumo oranges' },
+    { name: 'Quad lattes w/ whole milk' },
+    { name: 'Nat Geo documentaries' },
   ]
   const tabs = [
     { name: 'Claude 💕', note: 'oh, me 👀' },
