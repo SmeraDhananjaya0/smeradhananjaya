@@ -546,13 +546,26 @@ const RECENTS = [
   'Restaurant Recommendations',
 ]
 
+// Open bin with two lines above — matches Claude.ai's "Projects" glyph.
+function ProjectsIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <line x1="9" y1="4" x2="15" y2="4" />
+      <line x1="7" y1="7.5" x2="17" y2="7.5" />
+      <path d="M5 11h14l-2 8.5a1 1 0 0 1-1 .8H8a1 1 0 0 1-1-.8z" />
+    </svg>
+  )
+}
+
 function ClaudeSidebar({ onNavigate, isMobile = false, open = false, onClose }: { onNavigate: (view: string) => void; isMobile?: boolean; open?: boolean; onClose?: () => void }) {
   const [activeItem, setActiveItem] = useState('New chat')
   const [activeRecent, setActiveRecent] = useState(0)
 
   const navItems = [
     { icon: <Plus size={14} />,            label: 'New chat',  view: 'home' },
-    { icon: <MessagesSquare size={14} />,  label: 'Chats',     view: 'chats' },
+    { icon: <MessagesSquare size={16} />,  label: 'Chats',     view: 'chats' },
+    { icon: <ProjectsIcon size={16} />,    label: 'Projects',  view: '' },
   ]
 
   const close = () => { if (isMobile) onClose?.() }
