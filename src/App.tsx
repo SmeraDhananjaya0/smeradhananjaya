@@ -2423,6 +2423,7 @@ function ClaudeChatViewHowThisWorks() {
 
 function ClaudeChatsView({ onNavigate }: { onNavigate: (v: string) => void }) {
   const chats = [
+    { title: 'How this Works..', time: '1 minute ago', view: 'howthisworks' },
     { title: 'Who am I?', time: '2 minutes ago', view: 'whoami' },
     { title: "What's Genxl?", time: '4 minutes ago', view: 'genxl' },
     { title: 'Fav Things', time: '5 minutes ago', view: 'favthings' },
