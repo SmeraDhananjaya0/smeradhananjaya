@@ -601,10 +601,21 @@ function YouTubeGlyph({ size = 16 }: { size?: number }) {
   )
 }
 
+function GenxlGlyph({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
+      <circle cx="12" cy="12" r="11" fill="#0b1f3a" />
+      <circle cx="12" cy="12" r="9" fill="none" stroke="#4fa3ff" strokeWidth="1.4" />
+      <path d="M12 3c-3 3-3 15 0 18M12 3c3 3 3 15 0 18M3.5 9h17M3.5 15h17" stroke="#4fa3ff" strokeWidth="1.1" />
+    </svg>
+  )
+}
+
 function FilesCarousel() {
   const items = [
     { href: 'https://www.cbsnews.com/boston/video/acton-boxboro-students-establish-genxl-which-offers-free-stem-education/', src: '/genxl-cbs.mp4', type: 'video', glyph: <CBSGlyph size={16} /> },
     { href: 'https://www.instagram.com/p/CxCD35ZR-Sy/?img_index=1', src: '/genxl-instagram.mp4', type: 'video', glyph: <InstagramGlyph size={16} /> },
+    { href: 'https://www.gnxl.org/', src: '/genxl-site.png', type: 'image', glyph: <GenxlGlyph size={16} /> },
     { href: 'https://www.youtube.com/watch?v=TnRerRXlQak', src: '/genxl-intro-2021.mp4', type: 'video', glyph: <YouTubeGlyph size={16} /> },
     { href: 'https://www.instagram.com/p/C16FW-6OLlk/?img_index=1', src: '/genxl-ghana.jpeg', type: 'image', glyph: <InstagramGlyph size={16} /> },
     { href: 'https://www.instagram.com/p/CyWdaNiROnl/?img_index=1', src: '/genxl-thailand.jpeg', type: 'image', glyph: <InstagramGlyph size={16} /> },
