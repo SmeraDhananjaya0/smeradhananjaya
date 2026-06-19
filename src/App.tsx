@@ -2341,8 +2341,9 @@ export default function App() {
               {resizeHandles}
             </div>
           )
-        ) : !windowOpen ? (
-          // Screensaver: wallpaper shows through; click anywhere to reopen the window.
+        ) : !windowOpen && !isMobile ? (
+          // Screensaver (desktop): wallpaper shows through; click anywhere to reopen.
+          // On mobile, reopen only via the dock's Chrome icon, so no click target here.
           <button
             onClick={() => setWindowOpen(true)}
             aria-label="Open window"
