@@ -1061,15 +1061,60 @@ function ContributionGraph() {
     [52, 1, 3], [52, 2, 3],
   ]
 
-  const cells: number[][] = Array.from({ length: WEEKS }, () => Array(DAYS).fill(0))
-  greens.forEach(([w, d, lvl]) => { if (w < WEEKS && d < DAYS) cells[w][d] = lvl })
+  const fallbackCells: number[][] = Array.from({ length: WEEKS }, () => Array(DAYS).fill(0))
+  greens.forEach(([w, d, lvl]) => { if (w < WEEKS && d < DAYS) fallbackCells[w][d] = lvl })
+
+  const [cells, setCells] = useState<number[][]>(fallbackCells)
+  const [monthLabels, setMonthLabels] = useState<string[]>(months)
+
+  useEffect(() => {
+    let ignore = false
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+    fetch('https://github-contributions-api.jogruber.de/v4/SmeraDhananjaya0?y=last')
+      .then((res) => res.json())
+      .then((data) => {
+        if (ignore) return
+        const contributions: { date: string; count: number; level: number }[] = data.contributions
+        if (!contributions || contributions.length === 0) return
+        // Trailing 53 weeks of days
+        const recent = contributions.slice(-WEEKS * DAYS)
+        // Pad front so column 0 starts on a Sunday
+        const lead = new Date(recent[0].date).getUTCDay()
+        const padded: ({ date: string; level: number } | null)[] = [
+          ...Array(lead).fill(null),
+          ...recent.map((c) => ({ date: c.date, level: c.level })),
+        ]
+        const grid: number[][] = Array.from({ length: WEEKS }, () => Array(DAYS).fill(0))
+        const labels: string[] = Array(WEEKS).fill('')
+        let lastMonth = -1
+        for (let w = 0; w < WEEKS; w++) {
+          for (let d = 0; d < DAYS; d++) {
+            const entry = padded[w * DAYS + d]
+            if (entry) grid[w][d] = entry.level
+          }
+          // Month label from first real day of the column
+          const first = padded.slice(w * DAYS, w * DAYS + DAYS).find((e) => e !== null)
+          if (first) {
+            const m = new Date(first.date).getUTCMonth()
+            if (m !== lastMonth) {
+              labels[w] = monthNames[m]
+              lastMonth = m
+            }
+          }
+        }
+        setCells(grid)
+        setMonthLabels(labels)
+      })
+      .catch(() => { /* keep fallback */ })
+    return () => { ignore = true }
+  }, [])
 
   return (
     <div className="w-full">
       {/* month labels */}
       <div className="flex pl-[44px] mb-1.5">
-        {months.map((m) => (
-          <span key={m} className="flex-1 text-[12px] text-[#7d8590]">{m}</span>
+        {monthLabels.map((m, i) => (
+          <span key={i} className="flex-1 text-[12px] text-[#7d8590]">{m}</span>
         ))}
       </div>
       <div className="flex">
