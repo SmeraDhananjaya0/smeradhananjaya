@@ -731,11 +731,11 @@ function FilesCarousel() {
 
 function MitreFilesCarousel() {
   const items = [
-    { href: 'https://www.mitre.org/', src: '/mitre-home.png' },
-    { href: 'https://www.mitre.org/news-insights/publication/6g-and-artificial-intelligence-machine-learning', src: '/mitre-6g.png' },
-    { href: 'https://arxiv.org/abs/2510.01533', src: '/mitre-nvidia.png' },
-    { href: 'https://www.jhuapl.edu/work/projects-and-missions/ai-driven-wargaming', src: '/mitre-genwar.png', contain: true },
-    { href: 'https://neo4j.com/blog/graphs-in-government-mitre/', src: '/mitre-cygraph.png' },
+    { href: 'https://www.mitre.org/', src: '/mitre-home.png?v=2' },
+    { href: 'https://www.mitre.org/news-insights/publication/6g-and-artificial-intelligence-machine-learning', src: '/mitre-6g.png?v=2' },
+    { href: 'https://arxiv.org/abs/2510.01533', src: '/mitre-nvidia.png?v=2' },
+    { href: 'https://www.jhuapl.edu/work/projects-and-missions/ai-driven-wargaming', src: '/mitre-genwar.png?v=2', contain: true },
+    { href: 'https://neo4j.com/blog/graphs-in-government-mitre/', src: '/mitre-cygraph.png?v=2' },
   ]
   const [idx, setIdx] = useState(0)
   const prev = () => setIdx(i => (i - 1 + items.length) % items.length)
