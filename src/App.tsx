@@ -729,6 +729,82 @@ function FilesCarousel() {
   )
 }
 
+function MitreFilesCarousel() {
+  const items = [
+    { href: 'https://www.mitre.org/', src: '/mitre-home.png' },
+    { href: 'https://www.mitre.org/news-insights/publication/6g-and-artificial-intelligence-machine-learning', src: '/mitre-6g.png' },
+    { href: 'https://arxiv.org/abs/2510.01533', src: '/mitre-nvidia.png' },
+    { href: 'https://www.jhuapl.edu/work/projects-and-missions/ai-driven-wargaming', src: '/mitre-genwar.png', contain: true },
+    { href: 'https://neo4j.com/blog/graphs-in-government-mitre/', src: '/mitre-cygraph.png' },
+  ]
+  const [idx, setIdx] = useState(0)
+  const prev = () => setIdx(i => (i - 1 + items.length) % items.length)
+  const next = () => setIdx(i => (i + 1) % items.length)
+
+  // Peek carousel: active slide centered, neighbors peeking on both sides.
+  const SLIDE = 84 // % width of each slide
+  const offset = 50 - SLIDE / 2 - idx * SLIDE // center the active slide
+
+  return (
+    <div className="relative">
+      <div className="overflow-hidden">
+        <div
+          className="flex transition-transform duration-300 ease-out"
+          style={{ transform: `translateX(${offset}%)` }}
+        >
+          {items.map((item, i) => {
+            const isActive = i === idx
+            return (
+              <a
+                key={item.href}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => { if (!isActive) { e.preventDefault(); setIdx(i) } }}
+                style={{ flex: `0 0 ${SLIDE}%` }}
+                className={`group block px-1.5 transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-40 hover:opacity-70'}`}
+              >
+                <div className="relative aspect-video rounded-xl overflow-hidden bg-white border border-[#2d2d2a]">
+                  <img src={item.src} alt="" className={`absolute inset-0 w-full h-full ${item.contain ? 'object-contain' : 'object-cover object-top'}`} />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors" />
+                </div>
+              </a>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Arrows */}
+      <button
+        onClick={prev}
+        aria-label="Previous"
+        className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center transition-colors"
+      >
+        <ChevronLeft size={16} />
+      </button>
+      <button
+        onClick={next}
+        aria-label="Next"
+        className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center transition-colors"
+      >
+        <ChevronRight size={16} />
+      </button>
+
+      {/* Dots */}
+      <div className="flex justify-center gap-1.5 mt-2.5">
+        {items.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setIdx(i)}
+            aria-label={`Go to slide ${i + 1}`}
+            className={`h-1.5 rounded-full transition-all ${i === idx ? 'w-4 bg-[#cfcfca]' : 'w-1.5 bg-[#4a4a44] hover:bg-[#6a6a66]'}`}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function ClaudeSidebar({ onNavigate, isMobile = false, open = false, onClose }: { onNavigate: (view: string) => void; isMobile?: boolean; open?: boolean; onClose?: () => void }) {
   const [activeItem, setActiveItem] = useState('New chat')
   const [activeRecent, setActiveRecent] = useState(0)
@@ -2468,6 +2544,7 @@ function ClaudeChatViewHowThisWorks() {
 
 function ClaudeChatsView({ onNavigate }: { onNavigate: (v: string) => void }) {
   const chats = [
+    { title: 'What do you do at MITRE?', time: '1 minute ago', view: 'mitre' },
     { title: 'How this Works..', time: '1 minute ago', view: 'howthisworks' },
     { title: 'Who am I?', time: '2 minutes ago', view: 'whoami' },
     { title: "What's Genxl?", time: '4 minutes ago', view: 'genxl' },
@@ -2515,6 +2592,7 @@ function ClaudeChatsView({ onNavigate }: { onNavigate: (v: string) => void }) {
 
 function ClaudeProjectsView({ onNavigate }: { onNavigate: (v: string) => void }) {
   const projects = [
+    { name: 'MITRE', desc: 'National Security', updated: 'Updated just now', view: 'project-mitre' },
     { name: 'Genxl', desc: 'STEM for everyone!', updated: 'Updated just now', view: 'project-genxl' },
     { name: 'Personal Website', desc: 'Open Sourced', updated: 'Updated just now', view: 'project-personal' },
   ]
@@ -2751,6 +2829,223 @@ function ClaudeProjectPersonalView({ onNavigate }: { onNavigate: (v: string) => 
   )
 }
 
+function ClaudeChatViewMITRE() {
+  const link = 'text-[#c96442] underline decoration-[#c96442]/40 underline-offset-2 hover:decoration-[#c96442]'
+  return (
+    <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-1.5 px-4 md:px-6 py-3 flex-shrink-0">
+        <span className="text-[15px] text-[#cfcfca]">What do you do at MITRE?</span>
+      </div>
+
+      {/* Conversation */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-4 pb-40">
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              what did i actually do at{' '}
+              <a href="https://www.mitre.org/" target="_blank" rel="noopener noreferrer" className={link}>MITRE</a>?
+            </div>
+          </div>
+
+          {/* Assistant */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p><span className="font-semibold">You held a Top Secret clearance and interned at MITRE</span> — the federally funded R&amp;D nonprofit that runs national-security and public-interest labs for the U.S. government. Here's what you did: across four roles you worked your way from data engineering into deep learning, all on DoD-facing work.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              what did i do most recently?
+            </div>
+          </div>
+
+          {/* Assistant — Deep Learning Intern */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">Deep Learning Intern (Washington, D.C. — Jun 2026 → now).</span> You built a predictive-analysis transformer model for <span className="font-semibold">6G RAN signal-quality optimization</span>, paired with Kalman-filter and EMA mathematical modeling, targeting deployment on <span className="font-semibold">NVIDIA's Aerial</span> GPU-accelerated platform.</p>
+            <p>It sits squarely in the AI-RAN / AI-native PHY line — the closest public mirror is NVIDIA's{' '}
+              <a href="https://arxiv.org/abs/2510.01533" target="_blank" rel="noopener noreferrer" className={link}>AI Aerial paper</a>{' '}and the{' '}
+              <a href="https://www.nvidia.com/en-us/industries/telecommunications/ai-ran/" target="_blank" rel="noopener noreferrer" className={link}>AI Aerial platform</a>, alongside MITRE's own{' '}
+              <a href="https://www.mitre.org/news-insights/publication/6g-and-artificial-intelligence-machine-learning" target="_blank" rel="noopener noreferrer" className={link}>6G &amp; AI/ML</a>{' '}work.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              before that?
+            </div>
+          </div>
+
+          {/* Assistant — Applied AI Intern */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">Applied AI Intern (Jun 2025 → now).</span> You built a <span className="font-semibold">Multi-Query, LLM-based NLU system</span> that turns plain-English battle descriptions from the DoD (Air Force) into distilled variables for classified-environment simulation in <span className="font-semibold">AFSIM</span> — RAG pipelines, FAISS, and NLP for retrieval, processing, and synthetic-data flexibility, plus SysML modeling in Cameo.</p>
+            <p>It's the same plain-English → executable-simulation loop as JHU APL's{' '}
+              <a href="https://www.jhuapl.edu/work/projects-and-missions/ai-driven-wargaming" target="_blank" rel="noopener noreferrer" className={link}>GenWar Sim</a>{' '}(see the{' '}
+              <a href="https://breakingdefense.com/2025/08/johns-hopkins-building-classified-versions-of-its-ai-wargaming-tools-for-dod-ic/" target="_blank" rel="noopener noreferrer" className={link}>Breaking Defense</a>{' '}coverage), part of the broader DoD generative-wargaming push described in{' '}
+              <a href="https://arxiv.org/abs/2404.11446" target="_blank" rel="noopener noreferrer" className={link}>Open-Ended Wargames with LLMs</a>.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              and the data side?
+            </div>
+          </div>
+
+          {/* Assistant — Cyber Data Engineering Intern */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">Cyber Data Engineering Intern (Jun 2024 → now).</span> You prototyped <span className="font-semibold">graph-based lead-generation tools</span> for DoD national-security work — building a rules engine, standardized data models, and automation systems on top of a graph.</p>
+            <p>It's the same Neo4j graph-analytics approach as MITRE's own{' '}
+              <a href="https://neo4j.com/blog/graphs-in-government-mitre/" target="_blank" rel="noopener noreferrer" className={link}>CyGraph</a>, and the OSINT angle mirrors{' '}
+              <a href="https://arxiv.org/pdf/2301.12013v2" target="_blank" rel="noopener noreferrer" className={link}>Threat Hunting with a Neo4j Graph of OSINT</a>.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              where did it start?
+            </div>
+          </div>
+
+          {/* Assistant — Data Integration Engineering Intern */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p><span className="font-semibold">Data Integration Engineering Intern (Jun 2023 → Jun 2024).</span> It began here — integrating datasets with <span className="font-semibold">Spark, Neo4j, and SQL</span> to feed AI/ML models supporting DoD (Air Force) network analysis. That graph-data foundation (the{' '}
+              <a href="https://go.neo4j.com/rs/710-RRC-335/images/Neo4j-case-study-MITRE-EN-US.pdf" target="_blank" rel="noopener noreferrer" className={link}>Neo4j × MITRE</a>{' '}case study captures the flavor) is what everything since has been built on.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              how did it all connect?
+            </div>
+          </div>
+
+          {/* Assistant — the arc */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p><span className="font-semibold">It was one continuous arc.</span> Graph data engineering for DoD network analysis → RAG/LLM systems over that structured data → LLM NLU driving AFSIM simulation → deep learning for 6G RAN on NVIDIA Aerial. Each role built directly on the one before it.</p>
+          </div>
+
+          {/* Action row */}
+          <div className="flex items-center gap-1 mt-3 text-[#8a8a85]">
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Copy size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Play size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><ThumbsUp size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><ThumbsDown size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><RotateCw size={16} /></button>
+          </div>
+
+          {/* Claude asterisk */}
+          <div className="mt-4">
+            <ClaudeAsterisk size={36} color="#c96442" />
+          </div>
+        </div>
+      </div>
+
+      {/* Composer */}
+      <div className="flex-shrink-0 px-6 pb-3">
+        <div className="relative max-w-[720px] mx-auto">
+          <div className="rounded-2xl bg-[#252525] border border-[#34342f] shadow-xl">
+            <div className="px-4 py-3.5">
+              <span className="text-[15px] text-[#6a6a66]">Ask about MITRE</span>
+            </div>
+          </div>
+          <p className="text-center text-[11px] text-[#5a5a56] mt-2.5">Claude is AI and can make mistakes. Please double-check responses.</p>
+        </div>
+      </div>
+    </main>
+  )
+}
+
+function ClaudeProjectMITREView({ onNavigate }: { onNavigate: (v: string) => void }) {
+  return (
+    <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-[1080px] mx-auto px-4 md:px-8 pt-8 pb-20">
+          {/* Back link */}
+          <button
+            onClick={() => onNavigate('projects')}
+            className="flex items-center gap-1.5 mb-6 text-[13px] text-[#9a9a95] hover:text-[#cfcfca] transition-colors"
+          >
+            <ArrowLeft size={15} />
+            <span>All projects</span>
+          </button>
+
+          {/* Title row */}
+          <div className="flex items-start justify-between gap-4 mb-6">
+            <div>
+              <h1 className="font-lora text-[30px] text-[#ece9e2] mb-1">MITRE</h1>
+              <p className="text-[14px] text-[#9a9a95]">National Security</p>
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0 text-[#9a9a95]">
+              <button className="p-2 rounded-lg hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Star size={18} /></button>
+              <button className="p-2 rounded-lg hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><MoreHorizontal size={18} /></button>
+            </div>
+          </div>
+
+          {/* Two-column layout */}
+          <div className="flex flex-col lg:flex-row gap-5">
+            {/* Left: composer + chats */}
+            <div className="flex-1 min-w-0">
+              {/* Composer */}
+              <div className="rounded-2xl bg-[#252525] border border-[#34342f] shadow-xl mb-6">
+                <div className="px-4 pt-4 pb-2">
+                  <span className="text-[15px] text-[#6a6a66]">Learn More!</span>
+                </div>
+                <div className="flex items-center justify-end px-3 pb-3">
+                  <ModelSelector openUp={false} alignRight />
+                </div>
+              </div>
+
+              {/* Chat list */}
+              <div>
+                <button
+                  onClick={() => onNavigate('mitre')}
+                  className="flex items-center justify-between w-full px-3 py-3.5 text-left border-b border-[#262624] hover:bg-[#222220] transition-colors"
+                >
+                  <span className="text-[14px] text-[#d4d2cc]">What do you do at MITRE?</span>
+                  <span className="text-[13px] text-[#6a6a66] flex-shrink-0 ml-4">Last message just now</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Right: unified panel */}
+            <div className="lg:w-[400px] flex-shrink-0">
+              <div className="rounded-2xl bg-[#202020] border border-[#2d2d2a] overflow-hidden">
+                {/* Instructions */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[14px] font-medium text-[#ece9e2]">Instructions</span>
+                    <button className="p-1 rounded-md text-[#9a9a95] hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Plus size={16} /></button>
+                  </div>
+                  <p className="text-[13px] leading-relaxed text-[#6a6a66] mb-2">I hold a Top Secret clearance, so this is a high-level explanation based on what has been made public.</p>
+                  <ul className="text-[13px] leading-relaxed text-[#6a6a66] list-disc pl-4 space-y-1">
+                    <li>Deep Learning</li>
+                    <li>Applied AI</li>
+                    <li>Cyber Data Engineering</li>
+                    <li>Data Integration Engineering</li>
+                  </ul>
+                </div>
+
+                <div className="h-px bg-[#2d2d2a]" />
+
+                {/* Files */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[14px] font-medium text-[#ece9e2]">Files</span>
+                    <button className="p-1 rounded-md text-[#9a9a95] hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Plus size={16} /></button>
+                  </div>
+                  <MitreFilesCarousel />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  )
+}
+
 function ChromeLogo({ size = 40 }: { size?: number }) {
   return <img src="/chrome-icon.png" width={size} height={size} alt="Google Chrome" draggable={false} style={{ display: 'block' }} />
 }
@@ -2842,7 +3137,7 @@ function Dock({ running, minimized, onOpenChrome, onRestore, onOpenTerminal, ter
   )
 }
 
-const VALID_VIEWS = ['home', 'code', 'marathon', 'chats', 'projects', 'project-genxl', 'project-personal', 'principles', 'favthings', 'genxl', 'howthisworks', 'whoami', 'books', 'restaurants']
+const VALID_VIEWS = ['home', 'code', 'marathon', 'chats', 'projects', 'project-mitre', 'project-genxl', 'project-personal', 'principles', 'favthings', 'genxl', 'howthisworks', 'mitre', 'whoami', 'books', 'restaurants']
 // Read the current destination from the URL hash (e.g. "#view=favthings&terminal=1").
 function readUrlState() {
   const p = new URLSearchParams(window.location.hash.replace(/^#/, ''))
@@ -2992,9 +3287,11 @@ export default function App() {
         {view === 'marathon' && <ClaudeChatView />}
         {view === 'chats' && <ClaudeChatsView onNavigate={navigate} />}
         {view === 'projects' && <ClaudeProjectsView onNavigate={navigate} />}
+        {view === 'project-mitre' && <ClaudeProjectMITREView onNavigate={navigate} />}
         {view === 'project-genxl' && <ClaudeProjectGenxlView onNavigate={navigate} />}
         {view === 'project-personal' && <ClaudeProjectPersonalView onNavigate={navigate} />}
         {view === 'howthisworks' && <ClaudeChatViewHowThisWorks />}
+        {view === 'mitre' && <ClaudeChatViewMITRE />}
         {view === 'principles' && <ClaudeChatViewPrinciples />}
         {view === 'favthings' && <ClaudeChatViewFavThings />}
         {view === 'genxl' && <ClaudeChatViewGenxl />}
