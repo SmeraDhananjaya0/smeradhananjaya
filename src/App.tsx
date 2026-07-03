@@ -1967,6 +1967,24 @@ function ClaudeChatViewBooks() {
             </ul>
           </div>
 
+          {/* User follow-up */}
+          <div className="flex justify-end mb-6 mt-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              any good papers?
+            </div>
+          </div>
+
+          {/* Assistant — Good Papers */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2]">
+            <p className="mb-3"><span className="font-semibold">Good Papers</span> — the ones worth reading front to back:</p>
+            <ul className="list-disc pl-5 md:pl-6 space-y-1">
+              <li>
+                <a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener noreferrer" className="text-[#c96442] underline decoration-[#c96442]/40 underline-offset-2 hover:decoration-[#c96442]">Attention Is All You Need</a> — Vaswani et al. (the transformer paper)
+              </li>
+            </ul>
+            <p className="mt-3">And if you want to go deeper, <a href="https://scholar.google.com/citations?user=6-e-ZBEAAAAJ&hl=en" target="_blank" rel="noopener noreferrer" className="text-[#c96442] underline decoration-[#c96442]/40 underline-offset-2 hover:decoration-[#c96442]">Dario Amodei's Google Scholar</a> is a rabbit hole worth falling into.</p>
+          </div>
+
           {/* Action row */}
           <div className="flex items-center gap-1 mt-3 text-[#8a8a85]">
             <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Copy size={16} /></button>
@@ -2203,7 +2221,11 @@ function ClaudeChatViewFavThings() {
     { name: 'Prada Paradox', note: 'your signature scent.' },
     { name: 'Sumo oranges' },
     { name: 'Quad lattes w/ whole milk' },
+    { name: 'Corepower' },
+    { name: 'Jif peanut butter' },
+    { name: '60% dark chocolate covered almonds' },
     { name: 'Nat Geo documentaries' },
+    { name: 'Bloomberg Originals' },
   ]
   const tabs = [
     { name: 'Claude 💕', note: 'oh, me 👀' },
@@ -2215,6 +2237,7 @@ function ClaudeChatViewFavThings() {
     { name: 'Supabase' },
     { name: 'Terminal' },
     { name: 'Figma' },
+    { name: 'Grug', href: 'https://apps.apple.com/us/app/grug/id6751649802' },
   ]
 
   return (
@@ -2265,7 +2288,11 @@ function ClaudeChatViewFavThings() {
             <ul className="list-disc pl-5 md:pl-6 space-y-1.5">
               {tabs.map((item) => (
                 <li key={item.name}>
-                  <span className="font-semibold">{item.name}</span>{item.note ? `: ${item.note}` : ''}
+                  {'href' in item && item.href ? (
+                    <a href={item.href} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#c96442] underline decoration-[#c96442]/40 underline-offset-2 hover:decoration-[#c96442]">{item.name}</a>
+                  ) : (
+                    <span className="font-semibold">{item.name}</span>
+                  )}{item.note ? `: ${item.note}` : ''}
                 </li>
               ))}
             </ul>
