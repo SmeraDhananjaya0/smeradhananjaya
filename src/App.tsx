@@ -922,7 +922,8 @@ function ClaudeSidebar({ onNavigate, isMobile = false, open = false, onClose }: 
 
 // ─── Model Selector Dropdown ──────────────────────────────────────────────────
 
-const MODELS = [
+const MODELS: { name: string; sub: string; badge?: string }[] = [
+  { name: 'Version 2.0', sub: 'For your toughest challenges', badge: 'Available starting Sept 30th 2026' },
   { name: 'Nasty 19',  sub: 'For complex tasks' },
   { name: 'M4 18',     sub: 'Most efficient for everyday tasks' },
   { name: 'Mark l 17', sub: 'Training Wheels Protocol' },
@@ -930,7 +931,7 @@ const MODELS = [
 
 function ModelSelector({ openUp = true, alignRight = true }: { openUp?: boolean; alignRight?: boolean }) {
   const [open, setOpen] = useState(false)
-  const [selected, setSelected] = useState('Nasty 19')
+  const [selected, setSelected] = useState('Version 2.0')
 
   return (
     <div className="relative">
@@ -951,27 +952,23 @@ function ModelSelector({ openUp = true, alignRight = true }: { openUp?: boolean;
 
           {/* panel — compact; opens up/down and left/right-aligned so it never gets cut off */}
           <div className={`absolute ${alignRight ? 'right-0' : 'left-0'} ${openUp ? 'bottom-full mb-2' : 'top-full mt-2'} w-[420px] max-w-[calc(100vw-24px)] max-h-[calc(100vh-110px)] overflow-y-auto z-50 p-1 rounded-xl bg-[#2b2a28] border border-[#3a3a38] shadow-[0_20px_50px_rgba(0,0,0,0.55)]`}>
-            {/* Disabled / unavailable */}
-            <div className="px-3 py-1.5 rounded-[10px] cursor-default">
-              <div className="flex items-center gap-2 whitespace-nowrap">
-                <span className="text-[13.5px] font-[450] leading-[1.25] text-[#67675f]">Myth atp 20</span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#33332f] text-[11.5px] text-[#8a8a85] whitespace-nowrap">
-                  <Info size={11} />
-                  Currently unavailable until Sept 30th 2026
-                </span>
-              </div>
-              <div className="text-[12px] leading-[1.25] text-[#67675f] mt-px">For your toughest challenges</div>
-            </div>
-
             {/* Selectable models */}
-            {MODELS.map(({ name, sub }) => (
+            {MODELS.map(({ name, sub, badge }) => (
               <button
                 key={name}
                 onClick={() => { setSelected(name); setOpen(false) }}
                 className="flex items-center w-full text-left px-3 py-1.5 rounded-[10px] hover:bg-[#34332f] transition-colors"
               >
                 <div className="flex-1 min-w-0">
-                  <div className="text-[13.5px] font-[450] leading-[1.25] text-[#f2f2ef]">{name}</div>
+                  <div className="flex items-center gap-2 whitespace-nowrap">
+                    <span className="text-[13.5px] font-[450] leading-[1.25] text-[#f2f2ef]">{name}</span>
+                    {badge && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#33332f] text-[11.5px] text-[#8a8a85] whitespace-nowrap">
+                        <Info size={11} />
+                        {badge}
+                      </span>
+                    )}
+                  </div>
                   <div className="text-[12px] leading-[1.25] text-[#8a8a85] mt-px">{sub}</div>
                 </div>
                 {selected === name && (
@@ -1033,7 +1030,7 @@ function ClaudeHomeView() {
         <div className="w-full max-w-2xl rounded-2xl bg-[#252525] border border-[#333] shadow-xl">
           {/* Unavailability banner */}
           <div className="px-4 py-2.5 border-b border-[#333] bg-[#222] rounded-t-2xl">
-            <span className="text-[12px] text-[#888]">Myth atp 20 is currently unavailable until Sept 30th 2026.</span>
+            <span className="text-[12px] text-[#888]">Version 2.0 is available starting Sept 30th 2026.</span>
           </div>
 
           {/* Input */}
@@ -2571,6 +2568,7 @@ function ClaudeChatViewHowThisWorks() {
 
 function ClaudeChatsView({ onNavigate }: { onNavigate: (v: string) => void }) {
   const chats = [
+    { title: "What's AutoWallet?", time: 'just now', view: 'autowallet' },
     { title: 'What do you do at MITRE?', time: '1 minute ago', view: 'mitre' },
     { title: 'How this Works..', time: '1 minute ago', view: 'howthisworks' },
     { title: 'Who am I?', time: '2 minutes ago', view: 'whoami' },
@@ -2619,6 +2617,7 @@ function ClaudeChatsView({ onNavigate }: { onNavigate: (v: string) => void }) {
 
 function ClaudeProjectsView({ onNavigate }: { onNavigate: (v: string) => void }) {
   const projects = [
+    { name: 'AutoWallet', desc: 'An AI agent that pays for its own tools', updated: 'Updated just now', view: 'project-autowallet' },
     { name: 'MITRE', desc: 'National Security', updated: 'Updated just now', view: 'project-mitre' },
     { name: 'Genxl', desc: 'STEM for everyone!', updated: 'Updated just now', view: 'project-genxl' },
     { name: 'Personal Website', desc: 'Open Sourced', updated: 'Updated just now', view: 'project-personal' },
@@ -3073,6 +3072,382 @@ function ClaudeProjectMITREView({ onNavigate }: { onNavigate: (v: string) => voi
   )
 }
 
+function AutoWalletFilesCarousel() {
+  const items = [
+    { href: 'https://autowallet-rust.vercel.app/', src: '/autowallet-app.png' },
+    { href: 'https://github.com/SmeraDhananjaya0/AutoWallet', src: '/autowallet-github.png' },
+    { href: 'https://explorer.testnet.chain.robinhood.com/', src: '/autowallet-explorer.png' },
+    { href: 'https://developers.circle.com/wallets', src: '/autowallet-circle.png' },
+  ]
+  const [idx, setIdx] = useState(0)
+  const prev = () => setIdx(i => (i - 1 + items.length) % items.length)
+  const next = () => setIdx(i => (i + 1) % items.length)
+
+  // Peek carousel: active slide centered, neighbors peeking on both sides.
+  const SLIDE = 84 // % width of each slide
+  const offset = 50 - SLIDE / 2 - idx * SLIDE // center the active slide
+
+  return (
+    <div className="relative">
+      <div className="overflow-hidden">
+        <div
+          className="flex transition-transform duration-300 ease-out"
+          style={{ transform: `translateX(${offset}%)` }}
+        >
+          {items.map((item, i) => {
+            const isActive = i === idx
+            return (
+              <a
+                key={item.href}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => { if (!isActive) { e.preventDefault(); setIdx(i) } }}
+                style={{ flex: `0 0 ${SLIDE}%` }}
+                className={`group block px-1.5 transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-40 hover:opacity-70'}`}
+              >
+                <div className="relative aspect-video rounded-xl overflow-hidden bg-white border border-[#2d2d2a]">
+                  <img src={item.src} alt="" className="absolute inset-0 w-full h-full object-cover object-top" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors" />
+                </div>
+              </a>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Arrows */}
+      <button
+        onClick={prev}
+        aria-label="Previous"
+        className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center transition-colors"
+      >
+        <ChevronLeft size={16} />
+      </button>
+      <button
+        onClick={next}
+        aria-label="Next"
+        className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center transition-colors"
+      >
+        <ChevronRight size={16} />
+      </button>
+
+      {/* Dots */}
+      <div className="flex justify-center gap-1.5 mt-2.5">
+        {items.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setIdx(i)}
+            aria-label={`Go to slide ${i + 1}`}
+            className={`h-1.5 rounded-full transition-all ${i === idx ? 'w-4 bg-[#cfcfca]' : 'w-1.5 bg-[#4a4a44] hover:bg-[#6a6a66]'}`}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function ClaudeChatViewAutoWallet() {
+  const link = 'text-[#c96442] underline decoration-[#c96442]/40 underline-offset-2 hover:decoration-[#c96442]'
+  const mono = 'font-mono text-[13px] md:text-[14px] text-[#d4d2cc] bg-[#2a2a28] px-1.5 py-0.5 rounded'
+  return (
+    <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-1.5 px-4 md:px-6 py-3 flex-shrink-0">
+        <span className="text-[15px] text-[#cfcfca]">What's AutoWallet?</span>
+      </div>
+
+      {/* Conversation */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-4 pb-40">
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              what's{' '}
+              <a href="https://autowallet-rust.vercel.app/" target="_blank" rel="noopener noreferrer" className={link}>AutoWallet</a>?
+            </div>
+          </div>
+
+          {/* Assistant — overview */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">AutoWallet is an AI agent that pays for its own tools.</span> Claude runs research tasks, and every web search it makes is a paid call — priced by how complex the query is ($0.001 to $0.010), charged <span className="italic">before</span> the results come back, and settled on the cheapest payment rail that can carry the amount.</p>
+            <p className="mb-3">The interesting part is what happens when the wallet runs dry in the middle of a task: the agent notices, funds itself (by selling a slice of its own stock portfolio, or by pulling from a Robinhood-backed treasury), and keeps going without anyone stepping in.</p>
+            <p>It's a Python / FastAPI backend running a Claude tool loop, a React front end, and a handful of Solidity contracts deployed to Robinhood Chain testnet. The code is on{' '}
+              <a href="https://github.com/SmeraDhananjaya0/AutoWallet" target="_blank" rel="noopener noreferrer" className={link}>GitHub</a>{' '}and the live app is at{' '}
+              <a href="https://autowallet-rust.vercel.app/" target="_blank" rel="noopener noreferrer" className={link}>autowallet-rust.vercel.app</a>.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              how does the money actually move?
+            </div>
+          </div>
+
+          {/* Assistant — payment router */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">Everything goes through a PaymentRouter sitting on top of a ledger.</span> The ledger is the single source of truth: integer micro-dollars, and every charge is two-phase — reserve the funds, let the rail pay, then commit only if the rail settled (otherwise release the hold). The balance never moves unless real money did.</p>
+            <p className="mb-3">The router picks a rail by amount. Anything <span className="font-semibold">under $0.50</span> goes to a micropayment rail — <span className="font-semibold">USDG on Robinhood Chain</span> by default, with <span className="font-semibold">USDC via Circle</span> as the fallback. Anything <span className="font-semibold">$0.50 and up</span> goes to a <span className="font-semibold">Stripe</span> card charge, because $0.50 is Stripe's USD minimum.</p>
+            <p>So in a single chat you can watch both rails fire: a $0.75 premium research report settles on Stripe, while the ordinary $0.004 searches around it settle on-chain. The agent never thinks about any of this — it just calls <span className={mono}>search_web</span> and the router does the rest.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              where does Circle come in?
+            </div>
+          </div>
+
+          {/* Assistant — Circle */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">Circle is the second micropayment rail.</span> It uses{' '}
+              <a href="https://developers.circle.com/wallets" target="_blank" rel="noopener noreferrer" className={link}>Circle Programmable Wallets</a>{' '}to send USDC from a developer-controlled wallet to the merchant, with the entity-secret ciphertext signed per request, and it polls the transfer until Circle reports it complete or failed.</p>
+            <p className="mb-3">The router tries micropayment rails in order and takes the first one that reports itself available. Robinhood Chain is first; if it can't pay — no gas in the agent wallet, RPC down, key missing — the exact same sub-$0.50 charge routes through Circle in USDC instead. Flip one env var (<span className={mono}>MICROPAYMENT_RAIL=circle</span>) and the order reverses, so Circle becomes primary.</p>
+            <p>That's the whole point of the dual-rail design: a paid tool call should never fail because one network is having a bad day.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              and the Robinhood testnet part?
+            </div>
+          </div>
+
+          {/* Assistant — Robinhood Chain testnet */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">All the on-chain activity runs on Robinhood Chain testnet</span> (chain ID 46630), Robinhood's Arbitrum-based L2. Robinhood doesn't publish a testnet USDG, so I wrote a minimal 6-decimal ERC-20 called <span className={mono}>tUSDG</span>, a <span className={mono}>DemoStockToken</span> contract, and a <span className={mono}>DemoExchange</span> that swaps between them — then deployed all of it with a couple of Python scripts.</p>
+            <p className="mb-3">Three throwaway wallets play the roles: an <span className="font-semibold">agent</span> wallet that spends, a <span className="font-semibold">treasury</span> wallet that refills it, and a <span className="font-semibold">merchant</span> wallet that gets paid. Gas comes from a faucet. Every transfer, buy, and sell is a real transaction you can open on the{' '}
+              <a href="https://explorer.testnet.chain.robinhood.com/" target="_blank" rel="noopener noreferrer" className={link}>testnet explorer</a>.</p>
+            <p>The only piece that stays simulated is the Robinhood <span className="italic">buy</span> itself, because Robinhood's Crypto Trading API has no sandbox. Set <span className={mono}>ROBINHOOD_CHAIN_MODE=mainnet</span> and the same code moves real USDG.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              why build on a testnet with tokenized stocks?
+            </div>
+          </div>
+
+          {/* Assistant — advantages */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">Because you get real-world prices and real settlement without risking a dollar.</span> A few things fall out of that:</p>
+            <ul className="list-disc pl-5 space-y-2 mb-3">
+              <li><span className="font-semibold">Real prices, play money.</span> Chainlink runs a price feed for every Robinhood Stock Token on mainnet. Reading one is a free <span className={mono}>eth_call</span> — no wallet, no gas. The DemoExchange posts those prices on testnet, so <span className={mono}>dNVDA</span> trades at the actual NVIDIA price while the tokens themselves are worthless. The P&amp;L is realistic; the downside is zero.</li>
+              <li><span className="font-semibold">Real failure modes.</span> Testnet has real gas, real nonces, real reverts. The exchange rejects any price older than an hour, a sell burns tokens you must actually hold, and a transfer fails if the wallet is out of ETH. A mock never surfaces those bugs. Testnet does, for free.</li>
+              <li><span className="font-semibold">Stocks become composable.</span> Once a share is an ERC-20, the same wallet holds cash (tUSDG) and equities (dNVDA, dAAPL, dTSLA, dGOOGL, dMSFT, dSPY) side by side, and moving between them is one transaction. That's what makes self-funding possible at all — the agent's portfolio <span className="italic">is</span> its reserve.</li>
+              <li><span className="font-semibold">Zero-cost iteration.</span> Redeploy contracts whenever, refill from a faucet, and deliberately drain the wallet to $0.002 to test the recovery path. You can break it on purpose a hundred times a day.</li>
+              <li><span className="font-semibold">Mainnet is a config change.</span> Same contracts, same router, same agent loop. Testnet is where you prove it; mainnet is where you flip the switch.</li>
+            </ul>
+            <p>To be clear, these are demo tokens I deployed, not Robinhood's own Stock Tokens — but they're priced off the same feeds.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              it trades on its own?
+            </div>
+          </div>
+
+          {/* Assistant — agentic trading */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">Yes — trading is built into the agent loop, with guardrails.</span> Claude has six tools: <span className={mono}>search_web</span>, <span className={mono}>deep_research_report</span>, <span className={mono}>get_quote</span>, <span className={mono}>get_portfolio</span>, <span className={mono}>propose_trade</span>, and <span className={mono}>get_wallet_balance</span>. Ask it something like <span className="italic">"research how NVIDIA is doing with one search, then propose buying $10 of it if it looks good"</span> and it runs the loop: search, pull the live Chainlink quote, check the portfolio, then write a proposal with a 2-to-4 sentence thesis and cited sources.</p>
+            <p className="mb-3">A proposal is a card in the UI, not an executed trade. Nothing moves until you hit <span className="font-semibold">Approve</span>, and then the backend posts a fresh price if the on-chain one is stale, does a one-time tUSDG approval, and executes the swap — each step linked to the explorer.</p>
+            <p>Every proposal is checked against a rules engine — <span className="font-semibold">kill switch, $25 per-trade cap, $100 rolling 24-hour limit, allowed tickers, enough cash</span> — once when Claude proposes it and again when you approve it. If a rule blocks it, Claude is told which one and explains it instead of pretending.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              what happens when it runs out of money mid-task?
+            </div>
+          </div>
+
+          {/* Assistant — auto top-up */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">It sells something and keeps going.</span> This is the card that shows up in the chat when it happens:</p>
+
+            {/* Auto top-up card, mirroring AutoWallet's own UI */}
+            <div className="font-sans rounded-xl border border-[#c8e64a]/40 bg-[#c8e64a]/5 p-3.5 mb-4">
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className="rounded bg-[#c8e64a]/20 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[#c8e64a]">Auto top-up</span>
+                <span className="font-mono text-[14px] font-medium text-[#4ade80]">+$5.00</span>
+              </div>
+              <p className="text-[12.5px] text-[#9a9a95] mb-2.5">Wallet ran low mid-task, so the agent sold part of its portfolio to keep going.</p>
+              <ol className="text-[12.5px] space-y-1">
+                <li className="flex items-center justify-between gap-2">
+                  <span className="text-[#ece9e2]/90">✓ Sold 0.023041 dNVDA @ $217.00</span>
+                  <span className="font-mono text-[#c96442]">0xf2c6295c71d7… ↗</span>
+                </li>
+              </ol>
+            </div>
+
+            <p className="mb-3">Here's the mechanism. Before <span className="italic">every</span> charge, the router asks AutoTopUp whether paying this amount would drop the balance under the threshold ($1.00). If it would, it computes the shortfall and tops up by the larger of the standard amount ($5.00) or that shortfall — so one top-up always covers the call that triggered it.</p>
+            <p className="mb-3"><span className="font-semibold">Step one is the portfolio.</span> With "Fund spending from portfolio" on, the agent scans its positions at live Chainlink prices, picks the <span className="font-semibold">largest position that can cover the need</span>, and sells the <span className="font-semibold">smallest number of shares</span> that raises the amount (rounded up). The DemoExchange burns the shares and pays out tUSDG, the ledger is credited, and the original search goes through. That's the <span className={mono}>0.023041 dNVDA @ $217.00</span> line above — about $5.00 of NVIDIA, no more.</p>
+            <p className="mb-3"><span className="font-semibold">Step two is the treasury, only if the portfolio can't cover it.</span> Buy the stablecoin on Robinhood via the Crypto Trading API (Ed25519-signed requests), then send USDG from the treasury wallet to the agent wallet on Robinhood Chain. The ledger is credited only after <span className="italic">both</span> steps succeed. Robinhood's API has no withdrawal endpoint, which is exactly why the treasury wallet exists.</p>
+            <p>Guardrails on all of it: a rolling 24-hour cap on top-ups (read from the ledger, so it survives restarts) and a lock so two concurrent charges can't trigger a double top-up.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              so it's aware of its own balance?
+            </div>
+          </div>
+
+          {/* Assistant — self-awareness / profitability */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">At two levels, and that split is the design.</span></p>
+            <p className="mb-3"><span className="font-semibold">Claude decides what's worth doing.</span> The system prompt tells it every search costs money and that it's charged up front, so it reasons about cost like a budget: one well-formed query instead of five narrow ones, at most three paid searches per request, answer from knowledge when the question doesn't need fresh data. It can call <span className={mono}>get_wallet_balance</span> and <span className={mono}>get_portfolio</span> at any point and factor the numbers into what it proposes.</p>
+            <p className="mb-3"><span className="font-semibold">Code decides how to stay solvent.</span> Liquidity is handled deterministically by the router, not by the model — self-funding is treated as "liquidity, not a trading decision," so it isn't subject to the per-trade caps, though it still respects the kill switch. That means the agent can't talk itself into a bad sell to cover a bill; the sell is always the minimum slice of the biggest position.</p>
+            <p>Put together, the agent keeps its capital working in positions instead of sitting idle as cash, pays as little as possible for each tool call, and liquidates only what it needs, when it needs it. Research drives the buys, the rules engine and your approval bound them, and the wallet never stalls a task. It's an agent that's financially self-sufficient inside limits you set.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              can other agents use it?
+            </div>
+          </div>
+
+          {/* Assistant — x402 / MCP */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">Yes — the search is also sold as a paywalled API.</span> Hit <span className={mono}>POST /search</span> without paying and you get a <span className={mono}>402</span> listing the accepted payment schemes, in the shape of x402. Retry with a scoped payment token (a capped allowance issued by the server) or with the hash of a USDG transfer to the merchant, which is verified on-chain and single-use.</p>
+            <p>There's a manifest at <span className={mono}>/merchant/manifest</span> describing pricing, and an MCP server that exposes <span className={mono}>search_web</span> and <span className={mono}>wallet_status</span> — so Claude Code or Claude Desktop can plug in and run the 402 → token → paid-retry flow as a tool.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              stack?
+            </div>
+          </div>
+
+          {/* Assistant — stack */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p><span className="font-semibold">Python + FastAPI</span> backend with Claude's tool-use loop via the Anthropic SDK. <span className="font-semibold">React + Vite</span> front end. <span className="font-semibold">Solidity</span> contracts (tUSDG, DemoStockToken, DemoExchange) on Robinhood Chain via web3. <span className="font-semibold">Stripe</span>, <span className="font-semibold">Circle Programmable Wallets</span>, and the <span className="font-semibold">Robinhood Crypto Trading API</span> as rails. Chainlink for prices, Postgres for state, Vercel for hosting, and a pytest suite covering the ledger, router, top-up, trading rules, and the x402 flow.</p>
+          </div>
+
+          {/* Action row */}
+          <div className="flex items-center gap-1 mt-3 text-[#8a8a85]">
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Copy size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Play size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><ThumbsUp size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><ThumbsDown size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><RotateCw size={16} /></button>
+          </div>
+
+          {/* Claude asterisk */}
+          <div className="mt-4">
+            <ClaudeAsterisk size={36} color="#c96442" />
+          </div>
+        </div>
+      </div>
+
+      {/* Composer */}
+      <div className="flex-shrink-0 px-6 pb-3">
+        <div className="relative max-w-[720px] mx-auto">
+          <div className="rounded-2xl bg-[#252525] border border-[#34342f] shadow-xl">
+            <div className="px-4 py-3.5">
+              <span className="text-[15px] text-[#6a6a66]">Ask about AutoWallet</span>
+            </div>
+          </div>
+          <p className="text-center text-[11px] text-[#5a5a56] mt-2.5">Claude is AI and can make mistakes. Please double-check responses.</p>
+        </div>
+      </div>
+    </main>
+  )
+}
+
+function ClaudeProjectAutoWalletView({ onNavigate }: { onNavigate: (v: string) => void }) {
+  return (
+    <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-[1080px] mx-auto px-4 md:px-8 pt-8 pb-20">
+          {/* Back link */}
+          <button
+            onClick={() => onNavigate('projects')}
+            className="flex items-center gap-1.5 mb-6 text-[13px] text-[#9a9a95] hover:text-[#cfcfca] transition-colors"
+          >
+            <ArrowLeft size={15} />
+            <span>All projects</span>
+          </button>
+
+          {/* Title row */}
+          <div className="flex items-start justify-between gap-4 mb-6">
+            <div>
+              <h1 className="font-lora text-[30px] text-[#ece9e2] mb-1">AutoWallet</h1>
+              <p className="text-[14px] text-[#9a9a95]">An AI agent that pays for its own tools</p>
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0 text-[#9a9a95]">
+              <button className="p-2 rounded-lg hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Star size={18} /></button>
+              <button className="p-2 rounded-lg hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><MoreHorizontal size={18} /></button>
+            </div>
+          </div>
+
+          {/* Two-column layout */}
+          <div className="flex flex-col lg:flex-row gap-5">
+            {/* Left: composer + chats */}
+            <div className="flex-1 min-w-0">
+              {/* Composer */}
+              <div className="rounded-2xl bg-[#252525] border border-[#34342f] shadow-xl mb-6">
+                <div className="px-4 pt-4 pb-2">
+                  <span className="text-[15px] text-[#6a6a66]">Learn More!</span>
+                </div>
+                <div className="flex items-center justify-end px-3 pb-3">
+                  <ModelSelector openUp={false} alignRight />
+                </div>
+              </div>
+
+              {/* Chat list */}
+              <div>
+                <button
+                  onClick={() => onNavigate('autowallet')}
+                  className="flex items-center justify-between w-full px-3 py-3.5 text-left border-b border-[#262624] hover:bg-[#222220] transition-colors"
+                >
+                  <span className="text-[14px] text-[#d4d2cc]">What's AutoWallet?</span>
+                  <span className="text-[13px] text-[#6a6a66] flex-shrink-0 ml-4">Last message just now</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Right: unified panel */}
+            <div className="lg:w-[400px] flex-shrink-0">
+              <div className="rounded-2xl bg-[#202020] border border-[#2d2d2a] overflow-hidden">
+                {/* Instructions */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[14px] font-medium text-[#ece9e2]">Instructions</span>
+                    <button className="p-1 rounded-md text-[#9a9a95] hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Plus size={16} /></button>
+                  </div>
+                  <p className="text-[13px] leading-relaxed text-[#6a6a66] mb-2">Claude pays per search, routes each payment to the cheapest rail, and refills its own wallet when it runs low. Play money on Robinhood Chain testnet, real prices from Chainlink.</p>
+                  <ul className="text-[13px] leading-relaxed text-[#6a6a66] list-disc pl-4 space-y-1">
+                    <li>Dual-rail micropayments: Robinhood Chain USDG, Circle USDC</li>
+                    <li>Stripe for anything $0.50 and up</li>
+                    <li>Agentic trading with a rules engine and human approval</li>
+                    <li>Self-funding: sells its own portfolio before tapping the treasury</li>
+                    <li>x402-style paywall and MCP server for other agents</li>
+                  </ul>
+                </div>
+
+                <div className="h-px bg-[#2d2d2a]" />
+
+                {/* Files */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[14px] font-medium text-[#ece9e2]">Files</span>
+                    <button className="p-1 rounded-md text-[#9a9a95] hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Plus size={16} /></button>
+                  </div>
+                  <AutoWalletFilesCarousel />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  )
+}
+
 function ChromeLogo({ size = 40 }: { size?: number }) {
   return <img src="/chrome-icon.png" width={size} height={size} alt="Google Chrome" draggable={false} style={{ display: 'block' }} />
 }
@@ -3164,7 +3539,7 @@ function Dock({ running, minimized, onOpenChrome, onRestore, onOpenTerminal, ter
   )
 }
 
-const VALID_VIEWS = ['home', 'code', 'marathon', 'chats', 'projects', 'project-mitre', 'project-genxl', 'project-personal', 'principles', 'favthings', 'genxl', 'howthisworks', 'mitre', 'whoami', 'books', 'restaurants']
+const VALID_VIEWS = ['home', 'code', 'marathon', 'chats', 'projects', 'project-autowallet', 'autowallet', 'project-mitre', 'project-genxl', 'project-personal', 'principles', 'favthings', 'genxl', 'howthisworks', 'mitre', 'whoami', 'books', 'restaurants']
 // Read the current destination from the URL hash (e.g. "#view=favthings&terminal=1").
 function readUrlState() {
   const p = new URLSearchParams(window.location.hash.replace(/^#/, ''))
@@ -3314,11 +3689,13 @@ export default function App() {
         {view === 'marathon' && <ClaudeChatView />}
         {view === 'chats' && <ClaudeChatsView onNavigate={navigate} />}
         {view === 'projects' && <ClaudeProjectsView onNavigate={navigate} />}
+        {view === 'project-autowallet' && <ClaudeProjectAutoWalletView onNavigate={navigate} />}
         {view === 'project-mitre' && <ClaudeProjectMITREView onNavigate={navigate} />}
         {view === 'project-genxl' && <ClaudeProjectGenxlView onNavigate={navigate} />}
         {view === 'project-personal' && <ClaudeProjectPersonalView onNavigate={navigate} />}
         {view === 'howthisworks' && <ClaudeChatViewHowThisWorks />}
         {view === 'mitre' && <ClaudeChatViewMITRE />}
+        {view === 'autowallet' && <ClaudeChatViewAutoWallet />}
         {view === 'principles' && <ClaudeChatViewPrinciples />}
         {view === 'favthings' && <ClaudeChatViewFavThings />}
         {view === 'genxl' && <ClaudeChatViewGenxl />}
