@@ -2616,16 +2616,43 @@ function ClaudeChatsView({ onNavigate }: { onNavigate: (v: string) => void }) {
   )
 }
 
+type ProjectTag = { label: string; bg: string; text: string; textColor?: string }
 type ProjectCard = {
   name: string
   desc: string
   view: string
   cover: string
   accent: string
-  tags: string[]
-  facts: { value: string; label: string }[]
+  tags: ProjectTag[]
   live?: { label: string; href: string }
 }
+
+// Brand-colored favicon squares for the stack chips (same look as the bookmarks bar).
+const T = {
+  fastapi:   { label: 'FastAPI',        bg: '#009688', text: 'F' },
+  nextjs:    { label: 'Next.js',        bg: '#111111', text: 'N' },
+  postgres:  { label: 'Postgres',       bg: '#336791', text: 'P' },
+  claude:    { label: 'Claude',         bg: '#c96442', text: '✱' },
+  slack:     { label: 'Slack',          bg: '#4a154b', text: 'S' },
+  python:    { label: 'Python',         bg: '#3776ab', text: 'Py' },
+  react:     { label: 'React',          bg: '#20232a', text: 'R', textColor: '#61dafb' },
+  solidity:  { label: 'Solidity',       bg: '#2b247c', text: 'S' },
+  rhchain:   { label: 'Robinhood Chain', bg: '#00c805', text: 'R', textColor: '#0b0b0b' },
+  circle:    { label: 'Circle',         bg: '#0f7eff', text: 'C' },
+  stripe:    { label: 'Stripe',         bg: '#635bff', text: 'S' },
+  dl:        { label: 'Deep Learning',  bg: '#7c3aed', text: 'DL' },
+  rag:       { label: 'RAG',            bg: '#0ea5e9', text: 'R' },
+  neo4j:     { label: 'Neo4j',          bg: '#018bff', text: 'N' },
+  spark:     { label: 'Spark',          bg: '#e25a1c', text: 'S' },
+  afsim:     { label: 'AFSIM',          bg: '#475569', text: 'A' },
+  nonprofit: { label: '501(c)(3)',      bg: '#16a34a', text: '✓' },
+  youth:     { label: 'Youth-led',      bg: '#f5a524', text: 'Y', textColor: '#0b0b0b' },
+  stem:      { label: 'STEM',           bg: '#2563eb', text: 'S' },
+  global:    { label: 'Global',         bg: '#0891b2', text: 'G' },
+  ts:        { label: 'TypeScript',     bg: '#3178c6', text: 'TS' },
+  vite:      { label: 'Vite',           bg: '#646cff', text: 'V' },
+  tailwind:  { label: 'Tailwind',       bg: '#06b6d4', text: 'T' },
+} satisfies Record<string, ProjectTag>
 
 const PROJECT_CARDS: ProjectCard[] = [
   {
@@ -2634,12 +2661,7 @@ const PROJECT_CARDS: ProjectCard[] = [
     view: 'project-sladesk',
     cover: '/sladesk-desk.png',
     accent: '#00c805',
-    tags: ['FastAPI', 'Next.js', 'Postgres', 'Claude', 'Slack'],
-    facts: [
-      { value: '8', label: 'partners' },
-      { value: '3', label: 'ladder rungs' },
-      { value: '8am', label: 'daily sweep' },
-    ],
+    tags: [T.fastapi, T.nextjs, T.postgres, T.claude, T.slack],
     live: { label: 'Live', href: 'https://partner-sla-desk-web.vercel.app/' },
   },
   {
@@ -2648,12 +2670,7 @@ const PROJECT_CARDS: ProjectCard[] = [
     view: 'project-autowallet',
     cover: '/autowallet-app.png',
     accent: '#c8e64a',
-    tags: ['Python', 'React', 'Solidity', 'Robinhood Chain', 'Circle', 'Stripe'],
-    facts: [
-      { value: '3', label: 'payment rails' },
-      { value: '$0.001', label: 'per search' },
-      { value: '6', label: 'demo stocks' },
-    ],
+    tags: [T.python, T.react, T.solidity, T.rhchain, T.circle, T.stripe],
     live: { label: 'Live', href: 'https://autowallet-rust.vercel.app/' },
   },
   {
@@ -2662,12 +2679,7 @@ const PROJECT_CARDS: ProjectCard[] = [
     view: 'project-mitre',
     cover: '/mitre-home.png',
     accent: '#4a9eff',
-    tags: ['Deep Learning', 'RAG', 'Neo4j', 'Spark', 'AFSIM'],
-    facts: [
-      { value: '4', label: 'roles' },
-      { value: 'TS', label: 'clearance' },
-      { value: '6G', label: 'latest work' },
-    ],
+    tags: [T.dl, T.rag, T.neo4j, T.spark, T.afsim],
     live: { label: 'mitre.org', href: 'https://www.mitre.org/' },
   },
   {
@@ -2676,12 +2688,7 @@ const PROJECT_CARDS: ProjectCard[] = [
     view: 'project-genxl',
     cover: '/genxl-site.png',
     accent: '#f5a524',
-    tags: ['501(c)(3)', 'Youth-led', 'STEM', 'Global'],
-    facts: [
-      { value: '51.5k+', label: 'students' },
-      { value: '50+', label: 'chapters' },
-      { value: '$7.5M+', label: 'funding' },
-    ],
+    tags: [T.nonprofit, T.youth, T.stem, T.global],
     live: { label: 'gnxl.org', href: 'https://www.gnxl.org/' },
   },
   {
@@ -2690,12 +2697,7 @@ const PROJECT_CARDS: ProjectCard[] = [
     view: 'project-personal',
     cover: '/preview.png',
     accent: '#c96442',
-    tags: ['React', 'TypeScript', 'Vite', 'Tailwind'],
-    facts: [
-      { value: '1', label: 'React file' },
-      { value: '0', label: 'backend' },
-      { value: '100%', label: 'open source' },
-    ],
+    tags: [T.react, T.ts, T.vite, T.tailwind],
     live: { label: 'GitHub', href: 'https://github.com/SmeraDhananjaya0/smeradhananjaya' },
   },
 ]
@@ -2704,12 +2706,12 @@ function ClaudeProjectsView({ onNavigate }: { onNavigate: (v: string) => void })
   const [query, setQuery] = useState('')
   const q = query.trim().toLowerCase()
   const projects = q
-    ? PROJECT_CARDS.filter(p => [p.name, p.desc, ...p.tags].some(s => s.toLowerCase().includes(q)))
+    ? PROJECT_CARDS.filter(p => [p.name, p.desc, ...p.tags.map(t => t.label)].some(s => s.toLowerCase().includes(q)))
     : PROJECT_CARDS
   return (
     <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-[1000px] mx-auto px-4 md:px-8 pt-10 pb-20">
+        <div className="max-w-[880px] mx-auto px-4 md:px-8 pt-10 pb-20">
           {/* Header */}
           <div className="flex items-center justify-between mb-5">
             <h1 className="font-lora text-[28px] text-[#ece9e2]">Projects</h1>
@@ -2737,7 +2739,7 @@ function ClaudeProjectsView({ onNavigate }: { onNavigate: (v: string) => void })
           </div>
 
           {/* Project grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {projects.map((p) => (
               <button
                 key={p.name}
@@ -2749,7 +2751,7 @@ function ClaudeProjectsView({ onNavigate }: { onNavigate: (v: string) => void })
                 <div className="absolute top-0 left-0 right-0 h-[3px] bg-[var(--accent)] opacity-70 group-hover:opacity-100 transition-opacity z-10" />
 
                 {/* Cover */}
-                <div className="relative aspect-[16/9] overflow-hidden bg-[#1a1a1a]">
+                <div className="relative aspect-[2/1] overflow-hidden bg-[#1a1a1a]">
                   <img
                     src={p.cover}
                     alt=""
@@ -2772,32 +2774,23 @@ function ClaudeProjectsView({ onNavigate }: { onNavigate: (v: string) => void })
                 </div>
 
                 {/* Body */}
-                <div className="px-4 pt-2 pb-4">
-                  <div className="font-lora text-[19px] text-[#ece9e2] mb-0.5">{p.name}</div>
-                  <div className="text-[13px] text-[#9a9a95] mb-4">{p.desc}</div>
+                <div className="px-3.5 pt-1.5 pb-3.5">
+                  <div className="font-lora text-[17px] text-[#ece9e2] mb-0.5">{p.name}</div>
+                  <div className="text-[12.5px] text-[#9a9a95] mb-3">{p.desc}</div>
 
-                  {/* Facts */}
-                  <div className="grid grid-cols-3 gap-2 mb-4">
-                    {p.facts.map((f) => (
-                      <div key={f.label} className="rounded-lg bg-[#1c1c1a] border border-[#2a2a27] px-2.5 py-2">
-                        <div className="font-mono text-[15px] leading-none text-[var(--accent)] mb-1">{f.value}</div>
-                        <div className="text-[11px] text-[#7a7a75] truncate">{f.label}</div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-1.5 mb-4">
+                  {/* Stack chips — same pill style as the home-view suggestion buttons */}
+                  <div className="flex flex-wrap gap-1.5 mb-3">
                     {p.tags.map((t) => (
-                      <span key={t} className="px-2 py-0.5 rounded-md bg-[#2a2a28] border border-[#34342f] text-[11px] text-[#b8b6b0]">
-                        {t}
+                      <span key={t.label} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#252525] border border-[#333] text-white text-[11.5px]">
+                        <Favicon bg={t.bg} text={t.text} textColor={t.textColor} size={13} />
+                        {t.label}
                       </span>
                     ))}
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-[12px] text-[#6a6a66]">Updated just now</span>
-                    <span className="text-[12px] text-[#6a6a66] group-hover:text-[var(--accent)] transition-colors">Open →</span>
+                    <span className="text-[11.5px] text-[#6a6a66]">Updated just now</span>
+                    <span className="text-[11.5px] text-[#6a6a66] group-hover:text-[var(--accent)] transition-colors">Open →</span>
                   </div>
                 </div>
               </button>
