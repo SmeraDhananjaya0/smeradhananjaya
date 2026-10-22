@@ -2656,15 +2656,6 @@ const T = {
 
 const PROJECT_CARDS: ProjectCard[] = [
   {
-    name: 'Partner SLA Desk',
-    desc: 'SLA contract manager for crypto partnerships',
-    view: 'project-sladesk',
-    cover: '/sladesk-desk.png',
-    accent: '#00c805',
-    tags: [T.fastapi, T.nextjs, T.postgres, T.claude, T.slack],
-    live: { label: 'Live', href: 'https://partner-sla-desk-web.vercel.app/' },
-  },
-  {
     name: 'AutoWallet',
     desc: 'An AI trading agent that pays for its own tooling with crypto infra',
     view: 'project-autowallet',
@@ -2690,6 +2681,15 @@ const PROJECT_CARDS: ProjectCard[] = [
     accent: '#f5a524',
     tags: [T.nonprofit, T.youth, T.stem, T.global],
     live: { label: 'gnxl.org', href: 'https://www.gnxl.org/' },
+  },
+  {
+    name: 'Partner SLA Desk',
+    desc: 'SLA contract manager',
+    view: 'project-sladesk',
+    cover: '/sladesk-desk.png',
+    accent: '#00c805',
+    tags: [T.fastapi, T.nextjs, T.postgres, T.claude, T.slack],
+    live: { label: 'Live', href: 'https://partner-sla-desk-web.vercel.app/' },
   },
   {
     name: 'Personal Website',
@@ -3834,7 +3834,7 @@ function ClaudeProjectSlaDeskView({ onNavigate }: { onNavigate: (v: string) => v
           <div className="flex items-start justify-between gap-4 mb-6">
             <div>
               <h1 className="font-lora text-[30px] text-[#ece9e2] mb-1">Partner SLA Desk</h1>
-              <p className="text-[14px] text-[#9a9a95]">SLA contract manager for crypto partnerships</p>
+              <p className="text-[14px] text-[#9a9a95]">SLA contract manager</p>
             </div>
             <div className="flex items-center gap-1 flex-shrink-0 text-[#9a9a95]">
               <button className="p-2 rounded-lg hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Star size={18} /></button>
