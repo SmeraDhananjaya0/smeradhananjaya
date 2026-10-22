@@ -2568,6 +2568,7 @@ function ClaudeChatViewHowThisWorks() {
 
 function ClaudeChatsView({ onNavigate }: { onNavigate: (v: string) => void }) {
   const chats = [
+    { title: "What's Partner SLA Desk?", time: 'just now', view: 'sladesk' },
     { title: "What's AutoWallet?", time: 'just now', view: 'autowallet' },
     { title: 'What do you do at MITRE?', time: '1 minute ago', view: 'mitre' },
     { title: 'How this Works..', time: '1 minute ago', view: 'howthisworks' },
@@ -2615,17 +2616,100 @@ function ClaudeChatsView({ onNavigate }: { onNavigate: (v: string) => void }) {
   )
 }
 
+type ProjectCard = {
+  name: string
+  desc: string
+  view: string
+  cover: string
+  accent: string
+  tags: string[]
+  facts: { value: string; label: string }[]
+  live?: { label: string; href: string }
+}
+
+const PROJECT_CARDS: ProjectCard[] = [
+  {
+    name: 'Partner SLA Desk',
+    desc: 'SLA contract manager for crypto partnerships',
+    view: 'project-sladesk',
+    cover: '/sladesk-desk.png',
+    accent: '#00c805',
+    tags: ['FastAPI', 'Next.js', 'Postgres', 'Claude', 'Slack'],
+    facts: [
+      { value: '8', label: 'partners' },
+      { value: '3', label: 'ladder rungs' },
+      { value: '8am', label: 'daily sweep' },
+    ],
+    live: { label: 'Live', href: 'https://partner-sla-desk-web.vercel.app/' },
+  },
+  {
+    name: 'AutoWallet',
+    desc: 'An AI trading agent that pays for its own tooling with crypto infra',
+    view: 'project-autowallet',
+    cover: '/autowallet-app.png',
+    accent: '#c8e64a',
+    tags: ['Python', 'React', 'Solidity', 'Robinhood Chain', 'Circle', 'Stripe'],
+    facts: [
+      { value: '3', label: 'payment rails' },
+      { value: '$0.001', label: 'per search' },
+      { value: '6', label: 'demo stocks' },
+    ],
+    live: { label: 'Live', href: 'https://autowallet-rust.vercel.app/' },
+  },
+  {
+    name: 'MITRE',
+    desc: 'National Security',
+    view: 'project-mitre',
+    cover: '/mitre-home.png',
+    accent: '#4a9eff',
+    tags: ['Deep Learning', 'RAG', 'Neo4j', 'Spark', 'AFSIM'],
+    facts: [
+      { value: '4', label: 'roles' },
+      { value: 'TS', label: 'clearance' },
+      { value: '6G', label: 'latest work' },
+    ],
+    live: { label: 'mitre.org', href: 'https://www.mitre.org/' },
+  },
+  {
+    name: 'Genxl',
+    desc: 'STEM for everyone!',
+    view: 'project-genxl',
+    cover: '/genxl-site.png',
+    accent: '#f5a524',
+    tags: ['501(c)(3)', 'Youth-led', 'STEM', 'Global'],
+    facts: [
+      { value: '51.5k+', label: 'students' },
+      { value: '50+', label: 'chapters' },
+      { value: '$7.5M+', label: 'funding' },
+    ],
+    live: { label: 'gnxl.org', href: 'https://www.gnxl.org/' },
+  },
+  {
+    name: 'Personal Website',
+    desc: 'Open Sourced',
+    view: 'project-personal',
+    cover: '/preview.png',
+    accent: '#c96442',
+    tags: ['React', 'TypeScript', 'Vite', 'Tailwind'],
+    facts: [
+      { value: '1', label: 'React file' },
+      { value: '0', label: 'backend' },
+      { value: '100%', label: 'open source' },
+    ],
+    live: { label: 'GitHub', href: 'https://github.com/SmeraDhananjaya0/smeradhananjaya' },
+  },
+]
+
 function ClaudeProjectsView({ onNavigate }: { onNavigate: (v: string) => void }) {
-  const projects = [
-    { name: 'AutoWallet', desc: 'An AI agent that pays for its own tools', updated: 'Updated just now', view: 'project-autowallet' },
-    { name: 'MITRE', desc: 'National Security', updated: 'Updated just now', view: 'project-mitre' },
-    { name: 'Genxl', desc: 'STEM for everyone!', updated: 'Updated just now', view: 'project-genxl' },
-    { name: 'Personal Website', desc: 'Open Sourced', updated: 'Updated just now', view: 'project-personal' },
-  ]
+  const [query, setQuery] = useState('')
+  const q = query.trim().toLowerCase()
+  const projects = q
+    ? PROJECT_CARDS.filter(p => [p.name, p.desc, ...p.tags].some(s => s.toLowerCase().includes(q)))
+    : PROJECT_CARDS
   return (
     <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-[820px] mx-auto px-4 md:px-8 pt-10 pb-20">
+        <div className="max-w-[1000px] mx-auto px-4 md:px-8 pt-10 pb-20">
           {/* Header */}
           <div className="flex items-center justify-between mb-5">
             <h1 className="font-lora text-[28px] text-[#ece9e2]">Projects</h1>
@@ -2645,25 +2729,84 @@ function ClaudeProjectsView({ onNavigate }: { onNavigate: (v: string) => void })
           <div className="relative mb-6">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6a6a66]" />
             <input
+              value={query}
+              onChange={e => setQuery(e.target.value)}
               placeholder="Search projects..."
               className="w-full rounded-xl bg-[#222220] border border-[#33332f] pl-9 pr-3 py-2.5 text-[14px] text-[#d4d2cc] placeholder:text-[#6a6a66] outline-none focus:border-[#4a4a44]"
             />
           </div>
 
           {/* Project grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {projects.map((p) => (
               <button
                 key={p.name}
                 onClick={() => onNavigate(p.view)}
-                className="text-left rounded-2xl bg-[#222220] border border-[#2d2d2a] p-4 hover:bg-[#262624] hover:border-[#3a3a36] transition-colors"
+                style={{ ['--accent' as string]: p.accent } as React.CSSProperties}
+                className="group relative text-left rounded-2xl bg-[#222220] border border-[#2d2d2a] overflow-hidden hover:border-[var(--accent)] hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(0,0,0,0.45)] transition-all duration-300"
               >
-                <div className="font-lora text-[18px] text-[#ece9e2] mb-1">{p.name}</div>
-                <div className="text-[13px] text-[#9a9a95] mb-8">{p.desc}</div>
-                <div className="text-[12px] text-[#6a6a66]">{p.updated}</div>
+                {/* Accent strip */}
+                <div className="absolute top-0 left-0 right-0 h-[3px] bg-[var(--accent)] opacity-70 group-hover:opacity-100 transition-opacity z-10" />
+
+                {/* Cover */}
+                <div className="relative aspect-[16/9] overflow-hidden bg-[#1a1a1a]">
+                  <img
+                    src={p.cover}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#222220] via-[#222220]/20 to-transparent" />
+                  {p.live && (
+                    <a
+                      href={p.live.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur border border-white/10 text-[11.5px] text-[#ece9e2] hover:bg-black/80 transition-colors"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />
+                      {p.live.label}
+                      <span className="text-[#9a9a95]">↗</span>
+                    </a>
+                  )}
+                </div>
+
+                {/* Body */}
+                <div className="px-4 pt-2 pb-4">
+                  <div className="font-lora text-[19px] text-[#ece9e2] mb-0.5">{p.name}</div>
+                  <div className="text-[13px] text-[#9a9a95] mb-4">{p.desc}</div>
+
+                  {/* Facts */}
+                  <div className="grid grid-cols-3 gap-2 mb-4">
+                    {p.facts.map((f) => (
+                      <div key={f.label} className="rounded-lg bg-[#1c1c1a] border border-[#2a2a27] px-2.5 py-2">
+                        <div className="font-mono text-[15px] leading-none text-[var(--accent)] mb-1">{f.value}</div>
+                        <div className="text-[11px] text-[#7a7a75] truncate">{f.label}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-1.5 mb-4">
+                    {p.tags.map((t) => (
+                      <span key={t} className="px-2 py-0.5 rounded-md bg-[#2a2a28] border border-[#34342f] text-[11px] text-[#b8b6b0]">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-[12px] text-[#6a6a66]">Updated just now</span>
+                    <span className="text-[12px] text-[#6a6a66] group-hover:text-[var(--accent)] transition-colors">Open →</span>
+                  </div>
+                </div>
               </button>
             ))}
           </div>
+
+          {projects.length === 0 && (
+            <p className="text-center text-[14px] text-[#6a6a66] mt-12">No projects match "{query}".</p>
+          )}
         </div>
       </div>
     </main>
@@ -3376,7 +3519,7 @@ function ClaudeProjectAutoWalletView({ onNavigate }: { onNavigate: (v: string) =
           <div className="flex items-start justify-between gap-4 mb-6">
             <div>
               <h1 className="font-lora text-[30px] text-[#ece9e2] mb-1">AutoWallet</h1>
-              <p className="text-[14px] text-[#9a9a95]">An AI agent that pays for its own tools</p>
+              <p className="text-[14px] text-[#9a9a95]">An AI trading agent that pays for its own tooling with crypto infra</p>
             </div>
             <div className="flex items-center gap-1 flex-shrink-0 text-[#9a9a95]">
               <button className="p-2 rounded-lg hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Star size={18} /></button>
@@ -3438,6 +3581,328 @@ function ClaudeProjectAutoWalletView({ onNavigate }: { onNavigate: (v: string) =
                     <button className="p-1 rounded-md text-[#9a9a95] hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Plus size={16} /></button>
                   </div>
                   <AutoWalletFilesCarousel />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  )
+}
+
+function SlaDeskFilesCarousel() {
+  const items = [
+    { href: 'https://partner-sla-desk-web.vercel.app/', src: '/sladesk-desk.png' },
+    { href: 'https://partner-sla-desk-web.vercel.app/?agreement=alchemy', src: '/sladesk-drawer.png' },
+    { href: 'https://partner-sla-desk-api.vercel.app/docs', src: '/sladesk-api.png' },
+  ]
+  const [idx, setIdx] = useState(0)
+  const prev = () => setIdx(i => (i - 1 + items.length) % items.length)
+  const next = () => setIdx(i => (i + 1) % items.length)
+
+  // Peek carousel: active slide centered, neighbors peeking on both sides.
+  const SLIDE = 84 // % width of each slide
+  const offset = 50 - SLIDE / 2 - idx * SLIDE // center the active slide
+
+  return (
+    <div className="relative">
+      <div className="overflow-hidden">
+        <div
+          className="flex transition-transform duration-300 ease-out"
+          style={{ transform: `translateX(${offset}%)` }}
+        >
+          {items.map((item, i) => {
+            const isActive = i === idx
+            return (
+              <a
+                key={item.href}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => { if (!isActive) { e.preventDefault(); setIdx(i) } }}
+                style={{ flex: `0 0 ${SLIDE}%` }}
+                className={`group block px-1.5 transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-40 hover:opacity-70'}`}
+              >
+                <div className="relative aspect-video rounded-xl overflow-hidden bg-white border border-[#2d2d2a]">
+                  <img src={item.src} alt="" className="absolute inset-0 w-full h-full object-cover object-top" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors" />
+                </div>
+              </a>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Arrows */}
+      <button
+        onClick={prev}
+        aria-label="Previous"
+        className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center transition-colors"
+      >
+        <ChevronLeft size={16} />
+      </button>
+      <button
+        onClick={next}
+        aria-label="Next"
+        className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center transition-colors"
+      >
+        <ChevronRight size={16} />
+      </button>
+
+      {/* Dots */}
+      <div className="flex justify-center gap-1.5 mt-2.5">
+        {items.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setIdx(i)}
+            aria-label={`Go to slide ${i + 1}`}
+            className={`h-1.5 rounded-full transition-all ${i === idx ? 'w-4 bg-[#cfcfca]' : 'w-1.5 bg-[#4a4a44] hover:bg-[#6a6a66]'}`}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function ClaudeChatViewSlaDesk() {
+  const link = 'text-[#c96442] underline decoration-[#c96442]/40 underline-offset-2 hover:decoration-[#c96442]'
+  const mono = 'font-mono text-[13px] md:text-[14px] text-[#d4d2cc] bg-[#2a2a28] px-1.5 py-0.5 rounded'
+  return (
+    <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-1.5 px-4 md:px-6 py-3 flex-shrink-0">
+        <span className="text-[15px] text-[#cfcfca]">What's Partner SLA Desk?</span>
+      </div>
+
+      {/* Conversation */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-4 pb-40">
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              what's{' '}
+              <a href="https://partner-sla-desk-web.vercel.app/" target="_blank" rel="noopener noreferrer" className={link}>Partner SLA Desk</a>?
+            </div>
+          </div>
+
+          {/* Assistant — overview */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">Partner SLA Desk is an SLA contract manager for a crypto partnerships team.</span> Every partner agreement comes with obligations on both sides — audits to deliver, uptime to hit, reports due by the 5th, notice windows that quietly close — and in most companies all of that lives in someone's spreadsheet and someone's memory. The desk replaces the chasing: a daily sweep notices what's late or missed, nudges the right side, escalates on a fixed ladder, and writes everything down. A one-page UI shows what needs a hand today.</p>
+            <p className="mb-3">I built it around the eight launch partners of Robinhood Chain — Alchemy, Uniswap, Bitget Wallet, BitGo, Morpho, Chainlink, Paxos (USDG), and Phantom — each with a tier, an owner, a term, a notice period, service-level metrics, and open commitments. The partners are real; every date, term, and dollar figure is a placeholder I invented for the demo.</p>
+            <p>It's a FastAPI backend over Postgres, a Next.js front end, a scheduled job, and Claude for the writing. Live at{' '}
+              <a href="https://partner-sla-desk-web.vercel.app/" target="_blank" rel="noopener noreferrer" className={link}>partner-sla-desk-web.vercel.app</a>, with the API docs at{' '}
+              <a href="https://partner-sla-desk-api.vercel.app/docs" target="_blank" rel="noopener noreferrer" className={link}>partner-sla-desk-api.vercel.app/docs</a>.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              what does the desk actually show?
+            </div>
+          </div>
+
+          {/* Assistant — the UI */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">Four things, on one page.</span> A <span className="font-semibold">summary</span> of how many agreements need action, need watching, or are on track. A <span className="font-semibold">renewal timeline</span> — twelve months of bars with each partner's term end and the hatched notice window before it, with a line for today. The <span className="font-semibold">"Needs a hand" queue</span>, which ranks the top twelve items across every partner: an RPC uptime miss, an undelivered audit, a report that's twelve days late. And the <span className="font-semibold">agreement book</span>, every partner with its health, open commitments, and a bar for how many service levels it's meeting.</p>
+            <p className="mb-3">Click any partner and a <span className="font-semibold">drawer</span> opens: key terms, service levels with met or missed against target, commitments you can tick off, the three-step follow-up ladder with the current rung highlighted, the check-in email button, and the activity log.</p>
+            <p>The UI computes nothing. Health, priority, and queue membership are all calculated server-side from the rows, so the page and the sweep can never disagree about what's true.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              how does it decide what's urgent?
+            </div>
+          </div>
+
+          {/* Assistant — rules */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">A small rules engine — pure functions over rows, no I/O, no clock, fully unit-tested.</span></p>
+            <ul className="list-disc pl-5 space-y-2 mb-3">
+              <li><span className="font-semibold">Obligation state</span> comes from <span className={mono}>due_date − today</span>: overdue if negative, due soon within 7 days, otherwise upcoming.</li>
+              <li><span className="font-semibold">Metric state</span> is met or missed against its target — 99.91% uptime against a floor of 99.95% is a miss; 238ms p95 latency under a 250ms ceiling is met.</li>
+              <li><span className="font-semibold">Agreement health</span> is breached if any metric is missed or any obligation is overdue, at risk if anything is due soon or the notice window closes within 14 days, otherwise healthy.</li>
+              <li><span className="font-semibold">Priority score</span> for the queue is <span className={mono}>severity × tierWeight ÷ (max(days, −10) + 11) × 100</span>, with tier-1 partners weighted 1.5×. A missed metric scores a flat 400 × tierWeight so it always floats to the top; a closing notice window scores 150 × tierWeight ÷ (days + 1), so it gets louder as the deadline nears.</li>
+            </ul>
+            <p>The trick with <span className={mono}>max(days, −10)</span> is that something 30 days overdue doesn't outrank something 10 days overdue forever — past a point, overdue is overdue, and severity and tier decide.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              and the daily sweep?
+            </div>
+          </div>
+
+          {/* Assistant — sweep */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">The sweep is the whole product; the UI is just a window onto it.</span> Every weekday at 8am Eastern a GitHub Actions cron calls <span className={mono}>POST /sweep</span> with a bearer token. The "Run daily sweep" button on the desk calls the exact same function — so what you see in the demo is what runs unattended in production.</p>
+            <p className="mb-3">One run loads every agreement with its open obligations and current metrics, evaluates the rules, and applies every action in a single transaction:</p>
+            <ul className="list-disc pl-5 space-y-2 mb-3">
+              <li><span className="font-semibold">Escalates</span> overdue items one rung up the ladder — <span className="font-semibold">reminded</span> from three days before due through four days late, <span className="font-semibold">written notice</span> at five days late citing the contract clause, <span className="font-semibold">exec sponsor</span> at fourteen. One rung per run, never skipping, so a partner always gets the reminder before the notice.</li>
+              <li><span className="font-semibold">Opens a service-credit claim</span> when a metric with a credit attached is missed — a partner obligation due in ten days, created once, not again tomorrow.</li>
+              <li><span className="font-semibold">Opens a renewal decision</span> when a notice window closes within 30 days — an internal task due seven days before the window shuts, so nobody discovers an auto-renew after it has locked.</li>
+              <li><span className="font-semibold">Writes an event</span> for every action into an append-only log, which is what the drawer's activity list and the Slack digest both read from.</li>
+            </ul>
+            <p>Then it posts one Block Kit digest to Slack — breaches, escalations, tasks created — and returns the totals. It's <span className="font-semibold">idempotent</span>: run it twice on the same day and the second run creates nothing. That property has its own tests, including the ladder boundaries at exactly 4, 5, 13, and 14 days.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              where does Claude come in?
+            </div>
+          </div>
+
+          {/* Assistant — drafts */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">The check-in email.</span> Open a partner, hit "Write draft," and the API assembles only the live rows that matter — missed metrics, overdue partner items, anything due in the next two weeks on either side, the notice window if it's within 90 days — and sends them to Claude as JSON with a short brief: lead with what's missed or late, then what the partner owes next, then what we owe. Use only the facts in the JSON. No filler.</p>
+            <p>The model never invents a date or a figure because it never sees anything but the rows. If the call fails, the drawer falls back to a template built from the same rows, and drafts are cached per partner per day so repeated clicks don't re-bill.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              why build it this way?
+            </div>
+          </div>
+
+          {/* Assistant — design */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">Because the job it replaces is noticing, nudging, escalating, and documenting — and all four have to be boring and reliable.</span> So the design choices follow from that:</p>
+            <ul className="list-disc pl-5 space-y-2 mb-3">
+              <li><span className="font-semibold">Computed, never stored.</span> Health and priority are derived on every read. There's one source of truth, and the sweep can't drift from the UI.</li>
+              <li><span className="font-semibold">One function, two callers.</span> The cron and the button hit the same code path, so the demo is the production behavior, not a simulation of it.</li>
+              <li><span className="font-semibold">Dates relative to today.</span> The seed script places every due date and term end relative to the current day, so the queue is always live and the first sweep always has something to do.</li>
+              <li><span className="font-semibold">Plain language in the UI.</span> "Needs a hand," "partner owes," "3 days late" — the jargon lives in tooltips, not in the labels.</li>
+            </ul>
+            <p>The ops lead's real win isn't the dashboard. It's that on a Tuesday morning a written notice is already queued and a renewal task already exists, and nobody had to remember.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              stack?
+            </div>
+          </div>
+
+          {/* Assistant — stack */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p><span className="font-semibold">Python 3.12 + FastAPI + SQLAlchemy</span> for the API and sweep, with the rules in one pure module and a pytest suite of 49 tests. <span className="font-semibold">Postgres on Supabase</span> in production, SQLite locally, four tables: agreements, obligations, sla_metrics, and an append-only events log. <span className="font-semibold">Next.js 15 + Tailwind</span> for the desk, styled after Robinhood's two-column layout. <span className="font-semibold">GitHub Actions</span> cron for the schedule, a <span className="font-semibold">Slack</span> incoming webhook for the digest, and <span className="font-semibold">Claude</span> for the drafts. Both halves deploy to Vercel.</p>
+          </div>
+
+          {/* Action row */}
+          <div className="flex items-center gap-1 mt-3 text-[#8a8a85]">
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Copy size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Play size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><ThumbsUp size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><ThumbsDown size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><RotateCw size={16} /></button>
+          </div>
+
+          {/* Claude asterisk */}
+          <div className="mt-4">
+            <ClaudeAsterisk size={36} color="#c96442" />
+          </div>
+        </div>
+      </div>
+
+      {/* Composer */}
+      <div className="flex-shrink-0 px-6 pb-3">
+        <div className="relative max-w-[720px] mx-auto">
+          <div className="rounded-2xl bg-[#252525] border border-[#34342f] shadow-xl">
+            <div className="px-4 py-3.5">
+              <span className="text-[15px] text-[#6a6a66]">Ask about Partner SLA Desk</span>
+            </div>
+          </div>
+          <p className="text-center text-[11px] text-[#5a5a56] mt-2.5">Claude is AI and can make mistakes. Please double-check responses.</p>
+        </div>
+      </div>
+    </main>
+  )
+}
+
+function ClaudeProjectSlaDeskView({ onNavigate }: { onNavigate: (v: string) => void }) {
+  return (
+    <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-[1080px] mx-auto px-4 md:px-8 pt-8 pb-20">
+          {/* Back link */}
+          <button
+            onClick={() => onNavigate('projects')}
+            className="flex items-center gap-1.5 mb-6 text-[13px] text-[#9a9a95] hover:text-[#cfcfca] transition-colors"
+          >
+            <ArrowLeft size={15} />
+            <span>All projects</span>
+          </button>
+
+          {/* Title row */}
+          <div className="flex items-start justify-between gap-4 mb-6">
+            <div>
+              <h1 className="font-lora text-[30px] text-[#ece9e2] mb-1">Partner SLA Desk</h1>
+              <p className="text-[14px] text-[#9a9a95]">SLA contract manager for crypto partnerships</p>
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0 text-[#9a9a95]">
+              <button className="p-2 rounded-lg hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Star size={18} /></button>
+              <button className="p-2 rounded-lg hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><MoreHorizontal size={18} /></button>
+            </div>
+          </div>
+
+          {/* Two-column layout */}
+          <div className="flex flex-col lg:flex-row gap-5">
+            {/* Left: composer + chats */}
+            <div className="flex-1 min-w-0">
+              {/* Composer */}
+              <div className="rounded-2xl bg-[#252525] border border-[#34342f] shadow-xl mb-6">
+                <div className="px-4 pt-4 pb-2">
+                  <span className="text-[15px] text-[#6a6a66]">Learn More!</span>
+                </div>
+                <div className="flex items-center justify-end px-3 pb-3">
+                  <ModelSelector openUp={false} alignRight />
+                </div>
+              </div>
+
+              {/* Chat list */}
+              <div>
+                <button
+                  onClick={() => onNavigate('sladesk')}
+                  className="flex items-center justify-between w-full px-3 py-3.5 text-left border-b border-[#262624] hover:bg-[#222220] transition-colors"
+                >
+                  <span className="text-[14px] text-[#d4d2cc]">What's Partner SLA Desk?</span>
+                  <span className="text-[13px] text-[#6a6a66] flex-shrink-0 ml-4">Last message just now</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Right: unified panel */}
+            <div className="lg:w-[400px] flex-shrink-0">
+              <div className="rounded-2xl bg-[#202020] border border-[#2d2d2a] overflow-hidden">
+                {/* Instructions */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[14px] font-medium text-[#ece9e2]">Instructions</span>
+                    <button className="p-1 rounded-md text-[#9a9a95] hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Plus size={16} /></button>
+                  </div>
+                  <p className="text-[13px] leading-relaxed text-[#6a6a66] mb-2">Keeps every partner agreement's obligations on time, on both sides. A daily sweep notices, nudges, escalates, and documents; the desk shows what needs a hand today. Partners are real, every figure is illustrative.</p>
+                  <ul className="text-[13px] leading-relaxed text-[#6a6a66] list-disc pl-4 space-y-1">
+                    <li>Ranked attention queue: severity × tier ÷ days left</li>
+                    <li>Three-rung escalation ladder, one step per day</li>
+                    <li>Auto-opens service-credit claims and renewal decisions</li>
+                    <li>Idempotent sweep on a weekday cron, Slack digest</li>
+                    <li>Claude-written check-in emails from live rows only</li>
+                  </ul>
+                </div>
+
+                <div className="h-px bg-[#2d2d2a]" />
+
+                {/* Files */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[14px] font-medium text-[#ece9e2]">Files</span>
+                    <button className="p-1 rounded-md text-[#9a9a95] hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Plus size={16} /></button>
+                  </div>
+                  <SlaDeskFilesCarousel />
                 </div>
               </div>
             </div>
@@ -3539,7 +4004,7 @@ function Dock({ running, minimized, onOpenChrome, onRestore, onOpenTerminal, ter
   )
 }
 
-const VALID_VIEWS = ['home', 'code', 'marathon', 'chats', 'projects', 'project-autowallet', 'autowallet', 'project-mitre', 'project-genxl', 'project-personal', 'principles', 'favthings', 'genxl', 'howthisworks', 'mitre', 'whoami', 'books', 'restaurants']
+const VALID_VIEWS = ['home', 'code', 'marathon', 'chats', 'projects', 'project-sladesk', 'sladesk', 'project-autowallet', 'autowallet', 'project-mitre', 'project-genxl', 'project-personal', 'principles', 'favthings', 'genxl', 'howthisworks', 'mitre', 'whoami', 'books', 'restaurants']
 // Read the current destination from the URL hash (e.g. "#view=favthings&terminal=1").
 function readUrlState() {
   const p = new URLSearchParams(window.location.hash.replace(/^#/, ''))
@@ -3689,6 +4154,7 @@ export default function App() {
         {view === 'marathon' && <ClaudeChatView />}
         {view === 'chats' && <ClaudeChatsView onNavigate={navigate} />}
         {view === 'projects' && <ClaudeProjectsView onNavigate={navigate} />}
+        {view === 'project-sladesk' && <ClaudeProjectSlaDeskView onNavigate={navigate} />}
         {view === 'project-autowallet' && <ClaudeProjectAutoWalletView onNavigate={navigate} />}
         {view === 'project-mitre' && <ClaudeProjectMITREView onNavigate={navigate} />}
         {view === 'project-genxl' && <ClaudeProjectGenxlView onNavigate={navigate} />}
@@ -3696,6 +4162,7 @@ export default function App() {
         {view === 'howthisworks' && <ClaudeChatViewHowThisWorks />}
         {view === 'mitre' && <ClaudeChatViewMITRE />}
         {view === 'autowallet' && <ClaudeChatViewAutoWallet />}
+        {view === 'sladesk' && <ClaudeChatViewSlaDesk />}
         {view === 'principles' && <ClaudeChatViewPrinciples />}
         {view === 'favthings' && <ClaudeChatViewFavThings />}
         {view === 'genxl' && <ClaudeChatViewGenxl />}
