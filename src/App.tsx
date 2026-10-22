@@ -2750,32 +2750,35 @@ function ClaudeProjectsView({ onNavigate }: { onNavigate: (v: string) => void })
                 {/* Accent strip */}
                 <div className="absolute top-0 left-0 right-0 h-[3px] bg-[var(--accent)] opacity-70 group-hover:opacity-100 transition-opacity z-10" />
 
-                {/* Cover */}
-                <div className="relative aspect-[2/1] overflow-hidden bg-[#1a1a1a]">
-                  <img
-                    src={p.cover}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                {/* Cover: the app in an inset window, peeking up from the bottom edge */}
+                <div className="relative aspect-[2/1] overflow-hidden bg-[#1c1c1a]">
+                  <div
+                    className="absolute inset-0"
+                    style={{ background: `radial-gradient(110% 80% at 50% 115%, ${p.accent}2e, transparent 62%)` }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#222220] via-[#222220]/20 to-transparent" />
-                  {p.live && (
-                    <a
-                      href={p.live.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur border border-white/10 text-[11.5px] text-[#ece9e2] hover:bg-black/80 transition-colors"
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />
-                      {p.live.label}
-                      <span className="text-[#9a9a95]">↗</span>
-                    </a>
-                  )}
+                  <div className="absolute left-5 right-5 top-5 -bottom-4 rounded-t-lg overflow-hidden border border-white/10 bg-[#111] shadow-[0_16px_36px_rgba(0,0,0,0.55)] transition-transform duration-500 ease-out group-hover:-translate-y-1.5">
+                    <img src={p.cover} alt="" className="w-full h-auto object-cover object-top" />
+                  </div>
                 </div>
 
                 {/* Body */}
-                <div className="px-3.5 pt-1.5 pb-3.5">
-                  <div className="font-lora text-[17px] text-[#ece9e2] mb-0.5">{p.name}</div>
+                <div className="px-3.5 pt-2.5 pb-3.5">
+                  <div className="flex items-center justify-between gap-3 mb-0.5">
+                    <div className="font-lora text-[17px] text-[#ece9e2]">{p.name}</div>
+                    {p.live && (
+                      <a
+                        href={p.live.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1c1c1a] border border-[#34342f] text-[11px] text-[#cfcfca] hover:border-[var(--accent)] transition-colors flex-shrink-0"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />
+                        {p.live.label}
+                        <span className="text-[#9a9a95]">↗</span>
+                      </a>
+                    )}
+                  </div>
                   <div className="text-[12.5px] text-[#9a9a95] mb-3">{p.desc}</div>
 
                   {/* Stack chips — same pill style as the home-view suggestion buttons */}
@@ -3588,7 +3591,6 @@ function SlaDeskFilesCarousel() {
   const items = [
     { href: 'https://partner-sla-desk-web.vercel.app/', src: '/sladesk-desk.png' },
     { href: 'https://partner-sla-desk-web.vercel.app/?agreement=alchemy', src: '/sladesk-drawer.png' },
-    { href: 'https://partner-sla-desk-api.vercel.app/docs', src: '/sladesk-api.png' },
   ]
   const [idx, setIdx] = useState(0)
   const prev = () => setIdx(i => (i - 1 + items.length) % items.length)
