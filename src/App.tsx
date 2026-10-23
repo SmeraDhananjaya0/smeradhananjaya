@@ -2568,6 +2568,7 @@ function ClaudeChatViewHowThisWorks() {
 
 function ClaudeChatsView({ onNavigate }: { onNavigate: (v: string) => void }) {
   const chats = [
+    { title: "What's Basis?", time: 'just now', view: 'basis' },
     { title: "What's Partner SLA Desk?", time: 'just now', view: 'sladesk' },
     { title: "What's AutoWallet?", time: 'just now', view: 'autowallet' },
     { title: 'What do you do at MITRE?', time: '1 minute ago', view: 'mitre' },
@@ -2652,9 +2653,21 @@ const T = {
   ts:        { label: 'TypeScript',     bg: '#3178c6', text: 'TS' },
   vite:      { label: 'Vite',           bg: '#646cff', text: 'V' },
   tailwind:  { label: 'Tailwind',       bg: '#06b6d4', text: 'T' },
+  kalshi:    { label: 'Kalshi',         bg: '#0b0b0b', text: 'K', textColor: '#00d26a' },
+  scipy:     { label: 'SciPy',          bg: '#0054a6', text: 'Sc' },
+  redis:     { label: 'Redis',          bg: '#dc382d', text: 'R' },
 } satisfies Record<string, ProjectTag>
 
 const PROJECT_CARDS: ProjectCard[] = [
+  {
+    name: 'Basis',
+    desc: 'Prediction-market research terminal',
+    view: 'project-basis',
+    cover: '/basis-home.png',
+    accent: '#00e676',
+    tags: [T.nextjs, T.fastapi, T.kalshi, T.scipy, T.postgres, T.redis],
+    live: { label: 'Live', href: 'https://basis-web-iota.vercel.app/' },
+  },
   {
     name: 'AutoWallet',
     desc: 'An AI trading agent that pays for its own tooling with crypto infra',
@@ -3587,6 +3600,388 @@ function ClaudeProjectAutoWalletView({ onNavigate }: { onNavigate: (v: string) =
   )
 }
 
+function BasisFilesCarousel() {
+  const items = [
+    { key: 'home', href: 'https://basis-web-iota.vercel.app/', src: '/basis-home.png' },
+    { key: 'trading', href: 'https://basis-web-iota.vercel.app/', src: '/basis-trading.png' },
+    { key: 'markets', href: 'https://basis-web-iota.vercel.app/', src: '/basis-markets.png' },
+    { key: 'system', href: 'https://basis-web-iota.vercel.app/', src: '/basis-system.png' },
+  ]
+  const [idx, setIdx] = useState(0)
+  const prev = () => setIdx(i => (i - 1 + items.length) % items.length)
+  const next = () => setIdx(i => (i + 1) % items.length)
+
+  // Peek carousel: active slide centered, neighbors peeking on both sides.
+  const SLIDE = 84 // % width of each slide
+  const offset = 50 - SLIDE / 2 - idx * SLIDE // center the active slide
+
+  return (
+    <div className="relative">
+      <div className="overflow-hidden">
+        <div
+          className="flex transition-transform duration-300 ease-out"
+          style={{ transform: `translateX(${offset}%)` }}
+        >
+          {items.map((item, i) => {
+            const isActive = i === idx
+            return (
+              <a
+                key={item.key}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => { if (!isActive) { e.preventDefault(); setIdx(i) } }}
+                style={{ flex: `0 0 ${SLIDE}%` }}
+                className={`group block px-1.5 transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-40 hover:opacity-70'}`}
+              >
+                <div className="relative aspect-video rounded-xl overflow-hidden bg-[#0b0b0b] border border-[#2d2d2a]">
+                  <img src={item.src} alt="" className="absolute inset-0 w-full h-full object-cover object-top" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors" />
+                </div>
+              </a>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Arrows */}
+      <button
+        onClick={prev}
+        aria-label="Previous"
+        className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center transition-colors"
+      >
+        <ChevronLeft size={16} />
+      </button>
+      <button
+        onClick={next}
+        aria-label="Next"
+        className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/55 hover:bg-black/75 text-white flex items-center justify-center transition-colors"
+      >
+        <ChevronRight size={16} />
+      </button>
+
+      {/* Dots */}
+      <div className="flex justify-center gap-1.5 mt-2.5">
+        {items.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setIdx(i)}
+            aria-label={`Go to slide ${i + 1}`}
+            className={`h-1.5 rounded-full transition-all ${i === idx ? 'w-4 bg-[#cfcfca]' : 'w-1.5 bg-[#4a4a44] hover:bg-[#6a6a66]'}`}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function ClaudeChatViewBasis() {
+  const link = 'text-[#c96442] underline decoration-[#c96442]/40 underline-offset-2 hover:decoration-[#c96442]'
+  const mono = 'font-mono text-[13px] md:text-[14px] text-[#d4d2cc] bg-[#2a2a28] px-1.5 py-0.5 rounded'
+  const row = 'flex items-baseline justify-between gap-4 py-1'
+  return (
+    <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-1.5 px-4 md:px-6 py-3 flex-shrink-0">
+        <span className="text-[15px] text-[#cfcfca]">What's Basis?</span>
+      </div>
+
+      {/* Conversation */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-[720px] mx-auto px-4 md:px-6 pt-4 pb-40">
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              what's{' '}
+              <a href="https://basis-web-iota.vercel.app/" target="_blank" rel="noopener noreferrer" className={link}>Basis</a>?
+            </div>
+          </div>
+
+          {/* Assistant — overview */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">Basis is a research and paper-trading terminal for prediction markets.</span> It connects to Kalshi, pulls a couple hundred live markets with their full order books, and then does the thing a trader would do by hand with a calculator: works out whether a position is actually worth more than it costs once you've walked the book, paid the fees, and rounded to the cent. When something clears, it shows up as an opportunity. When nothing does, it says so, instead of inventing a signal.</p>
+            <p className="mb-3">Everything defaults to <span className="font-semibold">Paper</span>. Quotes are real, fills are simulated against the real depth, and the ledger is yours alone. There is a Demo mode with synthetic markets that is always labeled as synthetic, and a Live gateway that is switched off until you deliberately configure it. No strategy ever submits an order on its own; the scanner finds, a human confirms.</p>
+            <p>Six pages: Portfolio, Opportunities, Markets, Trading, Performance, and System. A Next.js front end over a FastAPI quant and execution service, with a Postgres ledger and Redis for status. Live at{' '}
+              <a href="https://basis-web-iota.vercel.app/" target="_blank" rel="noopener noreferrer" className={link}>basis-web-iota.vercel.app</a>.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              what is it actually looking for?
+            </div>
+          </div>
+
+          {/* Assistant — strategies */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">Three families of opportunity, and it's honest about which ones are guaranteed.</span></p>
+            <ul className="list-disc pl-5 space-y-2 mb-3">
+              <li><span className="font-semibold">Binary complement.</span> YES and NO of the same contract pay $1 together at settlement. If you can buy both sides for less than $1 after fees, that's a locked profit. The trap most people fall into is adding the two displayed bids; the real ask for YES is <span className={mono}>1 − NO bid</span>, so Basis computes it that way. Real exchange books almost never stay crossed, so the demo mode plants crossed books on purpose to exercise the detector.</li>
+              <li><span className="font-semibold">Multi-outcome and related markets.</span> "Candidate A wins" and "Candidate B wins" might cover every settlement state between them; "Fed cuts in March" might strictly imply "Fed cuts by June." Those relationships are never guessed from titles or correlations. A human registers each one with an exhaustive payoff matrix, the rules-text hashes of every leg, and written evidence. If a market's rules change, the hash changes and the relationship is suspended.</li>
+              <li><span className="font-semibold">Statistical.</span> An exponentially weighted fair-value estimate from the market's own recent prices, optionally blended with peers. These are labeled <span className="font-semibold">research</span>, carry dispersion rather than a confidence percentage, and are never allowed into the hedge workflow.</li>
+            </ul>
+            <p>The one-line summary in the README is the design rule for the whole thing: <span className="italic">the platform does not invent real arbitrage when none exists.</span></p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              how does it know a trade is real after fees?
+            </div>
+          </div>
+
+          {/* Assistant — pricing */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">Exact arithmetic, no floats.</span> Every price inside the engine is a Python <span className={mono}>Decimal</span> in dollars. To price q contracts it walks the asks from cheapest up, fills what each level has, and sums <span className={mono}>price × filled</span>. VWAP is cost over filled quantity; slippage is how much worse that is than filling everything at the best ask. If the book runs out before q, the quote is incomplete and nothing downstream will touch it.</p>
+            <p className="mb-3">Fees use Kalshi's quadratic taker model, <span className={mono}>rate × q × p × (1 − p)</span>, at a default 7% rate. The model fee is rounded up to six decimals, then the whole debit is rounded <span className="font-semibold">up</span> to the account's balance grid on buys and <span className="font-semibold">down</span> on sells, with no assumed rebates. That's deliberately pessimistic: it would rather miss a marginal trade than show you one that isn't there.</p>
+            <p className="mb-3">Here's the complement case on a demo book, 100 contracts:</p>
+            <div className="rounded-xl bg-[#202020] border border-[#2d2d2a] px-4 py-3 mb-3 font-mono text-[12.5px] md:text-[13px] text-[#d4d2cc]">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[#9a9a95]">Binary complement · 100 contracts</span>
+                <span className="px-2 py-0.5 rounded-full bg-[#00c805]/15 text-[#00c805] text-[11px]">executable</span>
+              </div>
+              <div className={row}><span>YES ask 45¢ × 100</span><span>$45.00</span></div>
+              <div className={row}><span>NO ask 51¢ × 100</span><span>$51.00</span></div>
+              <div className={row}><span className="text-[#9a9a95]">fees, rounded up to the cent</span><span className="text-[#9a9a95]">$3.49</span></div>
+              <div className="h-px bg-[#2d2d2a] my-1.5" />
+              <div className={row}><span>payout at settlement</span><span>$100.00</span></div>
+              <div className={row}><span className="text-[#00c805]">net profit</span><span className="text-[#00c805]">$0.51 · 0.51¢ / contract</span></div>
+            </div>
+            <p className="mb-3">Four cents of "free money" on the screen becomes half a cent a contract once fees are in, which just clears the default minimum edge of 0.5¢. That gap is the whole reason the engine exists.</p>
+            <p>Sizing is a whole-contract search: it evaluates every quantity from 1 up to the available depth (capped at 500 per pass), keeps the ones with positive net profit, and picks the one with the most dollars, not the best percentage. For the multi-leg relationships it first solves a small linear program, <span className={mono}>min cᵀx subject to Ax ≥ 1</span>, with SciPy's HiGHS solver to get hedge ratios, then rebuilds integer quantities and re-checks every declared settlement state against real depth and fees. The LP proposes; the depth check decides.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              what happens when I hit buy?
+            </div>
+          </div>
+
+          {/* Assistant — paper engine */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">A paper order is an immediate-or-cancel ticket run through the same gauntlet a real one would face.</span> The ticket is validated against the current book and the risk limits, then it waits a simulated 300ms of latency, then it's validated <span className="italic">again</span>, because the book may have moved while it waited. If the quote is stale or the depth is gone, the fill shrinks or cancels, and you see a partial-fill status rather than a pretend success.</p>
+            <ul className="list-disc pl-5 space-y-2 mb-3">
+              <li><span className="font-semibold">One lock, one transaction.</span> Fills are serialized under an asyncio lock, and the order outcome, the fill, the position, and a cash-and-equity checkpoint are written to the database together. If that write fails, cash, positions, and consumed depth are rolled back in memory and execution halts.</li>
+              <li><span className="font-semibold">Depth is consumed.</span> A paper fill eats the levels it used, so you can't buy the same 61 contracts at 7¢ five times in a row. The next real snapshot from Kalshi represents replenished liquidity.</li>
+              <li><span className="font-semibold">Real P&L accounting.</span> Sells require an existing position, walk the bids, and realize profit against average acquisition basis, fees on both legs included. Partial exits allocate basis proportionally. You cannot open a short.</li>
+              <li><span className="font-semibold">Idempotent IDs.</span> Every order has a unique client ID at the database level; replaying an ID with different content is rejected.</li>
+            </ul>
+            <p>Hedge baskets, the multi-leg trades from the scanner, add one more rule: legs execute <span className="font-semibold">sequentially</span>, with child IDs derived deterministically from the basket ID, and the sequence <span className="font-semibold">stops</span> on any partial or failed leg. Whatever got filled stays visible as residual exposure. It never auto-unwinds, because the unwind is a trade too, and a trade you didn't ask for is the thing this whole system is built to avoid.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              can it trade with real money?
+            </div>
+          </div>
+
+          {/* Assistant — live */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">Yes, but it makes you earn it.</span> The live gateway is a single-leg, buy-only path that is disabled by default. Turning it on means setting <span className={mono}>ENABLE_LIVE_TRADING=true</span> on the server, an operator token, and a Kalshi key ID plus private key, which stay on the backend; requests are signed with RSA-PSS or Ed25519 and the key is never copied into the browser or returned by the API.</p>
+            <p className="mb-3">Then, per market, you have to record a <span className="font-semibold">fee review</span>: the current rules hash, the quadratic rate that actually applies to that series, a link to the evidence, and an expiry no more than seven days out. Kalshi has product-specific exceptions, so the general 7% is never assumed for a live order. Unknown or expired reviews block the preview.</p>
+            <p className="mb-3">The preview itself refreshes your real balances, positions, and resting orders, reserves the full limit notional plus worst-case fees and rounding, and hands you a phrase like <span className={mono}>BUY 10 YES KXTICKER LIVE</span>. You type it exactly, within ten seconds. Change any field, or the mode, and the preview is void.</p>
+            <p>The part I care most about is what happens <span className="italic">after</span> send. A durable pending intent is written before the exchange call. The write is attempted <span className="font-semibold">once</span>. A timeout, a malformed acknowledgement, a 409, or a 5xx means <span className="font-semibold">unknown</span>, not "rejected" and not "filled", and the kill switch engages until reconciliation matches the order by client ID against the exchange. Ambiguous writes are never retried, because the retry is how you end up with two positions. No live orders were placed during development; the gateway is covered by mocked tests only, and the docs say so.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              what stops it from blowing up?
+            </div>
+          </div>
+
+          {/* Assistant — risk */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">A small risk model that every path has to pass through, checked before latency and again after.</span></p>
+            <ul className="list-disc pl-5 space-y-2 mb-3">
+              <li><span className="font-semibold">Per-trade capital</span> of $1,000 and <span className="font-semibold">event exposure</span> of $5,000 by default, where exposure is everything you already hold across markets in the same event plus what this trade would add.</li>
+              <li><span className="font-semibold">Minimum net edge</span> of 0.5¢ per contract for hedge baskets. Directional tickets don't get an edge check because a directional bet has no guaranteed edge to check; they still get everything else.</li>
+              <li><span className="font-semibold">Stale quotes are rejected.</span> A book that hasn't updated in 30 seconds cannot be executed, full stop.</li>
+              <li><span className="font-semibold">Kill switch.</span> The emergency stop takes effect immediately without waiting for the execution lock, rejects every new ticket including exits, and there's a final pre-send gate that re-checks it after request pacing.</li>
+            </ul>
+            <p>Demo, Paper, and Live each get their own ledger, risk settings, and equity history. Switching modes clears the active books and bumps a generation counter, so any paper request that was mid-flight when you switched is invalidated instead of landing in the wrong ledger.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              where does the data come from?
+            </div>
+          </div>
+
+          {/* Assistant — data */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">Kalshi's official API, through a small adapter that treats the exchange as the source of truth.</span> Market discovery uses the public REST endpoints with cursor pagination and the fixed-point order books, which need no credentials, so the hosted demo you're looking at is polling real markets with real depth. With credentials, it switches to the authenticated WebSocket: a snapshot per subscription, then additive deltas, each checked against a sequence number. A gap invalidates the book and triggers a resubscribe; reconnects back off exponentially; polling never overwrites a book that a live socket owns.</p>
+            <p>The browser doesn't talk to Kalshi at all. FastAPI pushes a full state snapshot over its own WebSocket every two seconds, and the status dot distinguishes "connected to Basis" from "Basis is connected to Kalshi", because the first is not proof of the second. The System page is where you go to check which one you have.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              are the performance numbers real?
+            </div>
+          </div>
+
+          {/* Assistant — performance honesty */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">They're real simulations of your own fills, and nothing else.</span> There's no seeded equity curve and no backtest. Equity is cash plus positions marked to the best bid; a position with no bid keeps its cost and is counted separately as unpriced. Win rate stays blank until you've actually closed something. Sharpe stays blank until there are 20 daily returns, computed from UTC day-end snapshots with a zero risk-free rate.</p>
+            <p>Capture rate is the share of distinct eligible opportunity IDs that a paper hedge actually completed, which is a fair measure of the execution path and deliberately not an estimate of every fleeting opportunity the exchange ever showed. The README's own words: this is a substantial working research release, not an exchange-certified trading system. I'd rather the dashboard show a dash than a number I can't defend.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              why build it this way?
+            </div>
+          </div>
+
+          {/* Assistant — design */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p className="mb-3"><span className="font-semibold">Because the interesting problem in prediction markets isn't finding mispricings, it's not fooling yourself about them.</span> Fees, rounding, thin depth, and rules text that doesn't quite say what the title does will eat most apparent edge. So the design choices follow from that:</p>
+            <ul className="list-disc pl-5 space-y-2 mb-3">
+              <li><span className="font-semibold">Pessimistic by default.</span> Round against yourself, assume no rebates, require every leg to fill completely, and demand a strictly positive payoff in every declared state.</li>
+              <li><span className="font-semibold">Humans own the semantics.</span> The engine can prove a portfolio covers a payoff matrix. It cannot prove the matrix is exhaustive. That stays a reviewed, signed-off research step, recorded as settlement risk.</li>
+              <li><span className="font-semibold">Unknown is a real state.</span> Across the paper engine, the baskets, and the live gateway, the system would rather halt and reconcile than guess.</li>
+              <li><span className="font-semibold">Plain interface.</span> A centered page, one green accent, a big portfolio number, thin separators, and detail on demand: five scanner columns by default, calculation proof and hedge tickets behind an expand. Same visual language as my Partner SLA Desk, on purpose.</li>
+            </ul>
+            <p>The honest version of this product shows "no positive-edge signals right now" most of the time. That's the correct answer most of the time.</p>
+          </div>
+
+          {/* User */}
+          <div className="flex justify-end mb-6">
+            <div className="max-w-[88%] md:max-w-[80%] rounded-2xl bg-[#2a2a28] px-4 py-2.5 text-[14px] md:text-[15px] text-[#ececec]">
+              stack?
+            </div>
+          </div>
+
+          {/* Assistant — stack */}
+          <div className="font-lora text-[15px] md:text-[16px] leading-relaxed text-[#ece9e2] mb-6">
+            <p><span className="font-semibold">Python 3.12 + FastAPI</span> for the API, the Kalshi adapter, pricing, execution, risk, and analytics, with <span className="font-semibold">NumPy and SciPy</span> for the LP and the fair-value model, <span className="font-semibold">SQLAlchemy + Alembic</span> over <span className="font-semibold">Postgres 17</span> (SQLite for a zero-setup local run), and <span className="font-semibold">Redis 7</span> for status summaries. <span className="font-semibold">Next.js + TypeScript</span> for the terminal with TanStack tables, Recharts and Lightweight Charts, Zustand state, Tailwind, and a shadcn-style Radix button. A shared OpenAPI contract is exported from the backend so the front end's types can't drift. 51 pytest tests cover the quant math, the adapter, paper and live execution, and the baskets, with every authenticated exchange write mocked; Playwright drives the browser through navigation, filters, previews, fills, and the kill switch. Docker Compose brings up the whole thing; the web half is on Vercel.</p>
+          </div>
+
+          {/* Action row */}
+          <div className="flex items-center gap-1 mt-3 text-[#8a8a85]">
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Copy size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Play size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><ThumbsUp size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><ThumbsDown size={16} /></button>
+            <button className="p-1.5 rounded-md hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><RotateCw size={16} /></button>
+          </div>
+
+          {/* Claude asterisk */}
+          <div className="mt-4">
+            <ClaudeAsterisk size={36} color="#c96442" />
+          </div>
+        </div>
+      </div>
+
+      {/* Composer */}
+      <div className="flex-shrink-0 px-6 pb-3">
+        <div className="relative max-w-[720px] mx-auto">
+          <div className="rounded-2xl bg-[#252525] border border-[#34342f] shadow-xl">
+            <div className="px-4 py-3.5">
+              <span className="text-[15px] text-[#6a6a66]">Ask about Basis</span>
+            </div>
+          </div>
+          <p className="text-center text-[11px] text-[#5a5a56] mt-2.5">Claude is AI and can make mistakes. Please double-check responses.</p>
+        </div>
+      </div>
+    </main>
+  )
+}
+
+function ClaudeProjectBasisView({ onNavigate }: { onNavigate: (v: string) => void }) {
+  return (
+    <main className="flex-1 flex flex-col h-full bg-[#1a1a1a] overflow-hidden">
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-[1080px] mx-auto px-4 md:px-8 pt-8 pb-20">
+          {/* Back link */}
+          <button
+            onClick={() => onNavigate('projects')}
+            className="flex items-center gap-1.5 mb-6 text-[13px] text-[#9a9a95] hover:text-[#cfcfca] transition-colors"
+          >
+            <ArrowLeft size={15} />
+            <span>All projects</span>
+          </button>
+
+          {/* Title row */}
+          <div className="flex items-start justify-between gap-4 mb-6">
+            <div>
+              <h1 className="font-lora text-[30px] text-[#ece9e2] mb-1">Basis</h1>
+              <p className="text-[14px] text-[#9a9a95]">Prediction-market research terminal</p>
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0 text-[#9a9a95]">
+              <button className="p-2 rounded-lg hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Star size={18} /></button>
+              <button className="p-2 rounded-lg hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><MoreHorizontal size={18} /></button>
+            </div>
+          </div>
+
+          {/* Two-column layout */}
+          <div className="flex flex-col lg:flex-row gap-5">
+            {/* Left: composer + chats */}
+            <div className="flex-1 min-w-0">
+              {/* Composer */}
+              <div className="rounded-2xl bg-[#252525] border border-[#34342f] shadow-xl mb-6">
+                <div className="px-4 pt-4 pb-2">
+                  <span className="text-[15px] text-[#6a6a66]">Learn More!</span>
+                </div>
+                <div className="flex items-center justify-end px-3 pb-3">
+                  <ModelSelector openUp={false} alignRight />
+                </div>
+              </div>
+
+              {/* Chat list */}
+              <div>
+                <button
+                  onClick={() => onNavigate('basis')}
+                  className="flex items-center justify-between w-full px-3 py-3.5 text-left border-b border-[#262624] hover:bg-[#222220] transition-colors"
+                >
+                  <span className="text-[14px] text-[#d4d2cc]">What's Basis?</span>
+                  <span className="text-[13px] text-[#6a6a66] flex-shrink-0 ml-4">Last message just now</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Right: unified panel */}
+            <div className="lg:w-[400px] flex-shrink-0">
+              <div className="rounded-2xl bg-[#202020] border border-[#2d2d2a] overflow-hidden">
+                {/* Instructions */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[14px] font-medium text-[#ece9e2]">Instructions</span>
+                    <button className="p-1 rounded-md text-[#9a9a95] hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Plus size={16} /></button>
+                  </div>
+                  <p className="text-[13px] leading-relaxed text-[#6a6a66] mb-2">Scans live Kalshi order books for positions worth more than they cost after fees, then paper-trades them against real depth. Paper by default, demo always labeled, live only on explicit confirmation. Never invents an edge.</p>
+                  <ul className="text-[13px] leading-relaxed text-[#6a6a66] list-disc pl-4 space-y-1">
+                    <li>Exact Decimal pricing: walk the book, quadratic fees rounded against you</li>
+                    <li>Reviewed payoff matrices + LP hedge ratios, re-checked against depth</li>
+                    <li>Paper IOC engine: lock, latency, revalidate, one atomic ledger write</li>
+                    <li>Live gateway off by default; typed phrase, one attempt, unknown = stop</li>
+                    <li>Separate Demo / Paper / Live ledgers, stale quotes rejected at 30s</li>
+                  </ul>
+                </div>
+
+                <div className="h-px bg-[#2d2d2a]" />
+
+                {/* Files */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[14px] font-medium text-[#ece9e2]">Files</span>
+                    <button className="p-1 rounded-md text-[#9a9a95] hover:bg-[#2a2a28] hover:text-[#cfcfca] transition-colors"><Plus size={16} /></button>
+                  </div>
+                  <BasisFilesCarousel />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  )
+}
+
 function SlaDeskFilesCarousel() {
   const items = [
     { href: 'https://partner-sla-desk-web.vercel.app/', src: '/sladesk-desk.png' },
@@ -3999,7 +4394,7 @@ function Dock({ running, minimized, onOpenChrome, onRestore, onOpenTerminal, ter
   )
 }
 
-const VALID_VIEWS = ['home', 'code', 'marathon', 'chats', 'projects', 'project-sladesk', 'sladesk', 'project-autowallet', 'autowallet', 'project-mitre', 'project-genxl', 'project-personal', 'principles', 'favthings', 'genxl', 'howthisworks', 'mitre', 'whoami', 'books', 'restaurants']
+const VALID_VIEWS = ['home', 'code', 'marathon', 'chats', 'projects', 'project-basis', 'basis', 'project-sladesk', 'sladesk', 'project-autowallet', 'autowallet', 'project-mitre', 'project-genxl', 'project-personal', 'principles', 'favthings', 'genxl', 'howthisworks', 'mitre', 'whoami', 'books', 'restaurants']
 // Read the current destination from the URL hash (e.g. "#view=favthings&terminal=1").
 function readUrlState() {
   const p = new URLSearchParams(window.location.hash.replace(/^#/, ''))
@@ -4149,6 +4544,7 @@ export default function App() {
         {view === 'marathon' && <ClaudeChatView />}
         {view === 'chats' && <ClaudeChatsView onNavigate={navigate} />}
         {view === 'projects' && <ClaudeProjectsView onNavigate={navigate} />}
+        {view === 'project-basis' && <ClaudeProjectBasisView onNavigate={navigate} />}
         {view === 'project-sladesk' && <ClaudeProjectSlaDeskView onNavigate={navigate} />}
         {view === 'project-autowallet' && <ClaudeProjectAutoWalletView onNavigate={navigate} />}
         {view === 'project-mitre' && <ClaudeProjectMITREView onNavigate={navigate} />}
@@ -4157,6 +4553,7 @@ export default function App() {
         {view === 'howthisworks' && <ClaudeChatViewHowThisWorks />}
         {view === 'mitre' && <ClaudeChatViewMITRE />}
         {view === 'autowallet' && <ClaudeChatViewAutoWallet />}
+        {view === 'basis' && <ClaudeChatViewBasis />}
         {view === 'sladesk' && <ClaudeChatViewSlaDesk />}
         {view === 'principles' && <ClaudeChatViewPrinciples />}
         {view === 'favthings' && <ClaudeChatViewFavThings />}
