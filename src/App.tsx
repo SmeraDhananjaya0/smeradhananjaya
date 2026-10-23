@@ -2660,15 +2660,6 @@ const T = {
 
 const PROJECT_CARDS: ProjectCard[] = [
   {
-    name: 'Basis',
-    desc: 'Prediction-market research terminal',
-    view: 'project-basis',
-    cover: '/basis-home.png',
-    accent: '#00e676',
-    tags: [T.nextjs, T.fastapi, T.kalshi, T.scipy, T.postgres, T.redis],
-    live: { label: 'Live', href: 'https://basis-web-iota.vercel.app/' },
-  },
-  {
     name: 'AutoWallet',
     desc: 'An AI trading agent that pays for its own tooling with crypto infra',
     view: 'project-autowallet',
@@ -2703,6 +2694,15 @@ const PROJECT_CARDS: ProjectCard[] = [
     accent: '#00c805',
     tags: [T.fastapi, T.nextjs, T.postgres, T.claude, T.slack],
     live: { label: 'Live', href: 'https://partner-sla-desk-web.vercel.app/' },
+  },
+  {
+    name: 'Basis',
+    desc: 'Prediction-market research terminal',
+    view: 'project-basis',
+    cover: '/basis-home.png',
+    accent: '#00e676',
+    tags: [T.nextjs, T.fastapi, T.kalshi, T.scipy, T.postgres, T.redis],
+    live: { label: 'Live', href: 'https://basis-web-iota.vercel.app/' },
   },
   {
     name: 'Personal Website',
