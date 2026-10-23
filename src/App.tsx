@@ -2687,15 +2687,6 @@ const PROJECT_CARDS: ProjectCard[] = [
     live: { label: 'gnxl.org', href: 'https://www.gnxl.org/' },
   },
   {
-    name: 'Partner SLA Desk',
-    desc: 'SLA contract manager',
-    view: 'project-sladesk',
-    cover: '/sladesk-desk.png',
-    accent: '#00c805',
-    tags: [T.fastapi, T.nextjs, T.postgres, T.claude, T.slack],
-    live: { label: 'Live', href: 'https://partner-sla-desk-web.vercel.app/' },
-  },
-  {
     name: 'Basis',
     desc: 'Prediction-market research terminal',
     view: 'project-basis',
@@ -2703,6 +2694,15 @@ const PROJECT_CARDS: ProjectCard[] = [
     accent: '#00e676',
     tags: [T.nextjs, T.fastapi, T.kalshi, T.scipy, T.postgres, T.redis],
     live: { label: 'Live', href: 'https://basis-web-iota.vercel.app/' },
+  },
+  {
+    name: 'Partner SLA Desk',
+    desc: 'SLA contract manager',
+    view: 'project-sladesk',
+    cover: '/sladesk-desk.png',
+    accent: '#00c805',
+    tags: [T.fastapi, T.nextjs, T.postgres, T.claude, T.slack],
+    live: { label: 'Live', href: 'https://partner-sla-desk-web.vercel.app/' },
   },
   {
     name: 'Personal Website',
